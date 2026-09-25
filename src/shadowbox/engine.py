@@ -39,6 +39,8 @@ class RequestSample:
     latency_ms: int
     failed_at: str | None
     timed_out: bool
+    arrival_ms: int
+    finish_ms: int
 
 
 @dataclass
@@ -130,7 +132,7 @@ def _process(
     wait_ms = start_ms - arrival_ms
     if wait_ms >= comp.timeout_ms:
         runtime.stats.timeouts += 1
-        return (False, arrival_ms, True, events)  # gave up before acquiring a slot
+        return (False, arrival_ms + comp.timeout_ms, True, events)  # gave up waiting
     if service_ms > comp.timeout_ms - wait_ms:
         busy_until = start_ms + (comp.timeout_ms - wait_ms)
         runtime.stats.busy_time_ms += busy_until - start_ms
@@ -149,6 +151,7 @@ class _RequestOutcome:
     latency_ms: int
     failed_at: str | None
     timed_out: bool
+    finish_ms: int
 
 
 def simulate(model: SystemModel, scenario: Scenario, seed: int) -> SimulationResult:
@@ -174,7 +177,7 @@ def simulate(model: SystemModel, scenario: Scenario, seed: int) -> SimulationRes
         arrival_ms = int(i * interval_ms)
         cursor_ms = arrival_ms
         events += 2  # request-created, request-completed
-        outcome = _RequestOutcome(ok=True, latency_ms=0, failed_at=None, timed_out=False)
+        outcome = _RequestOutcome(True, 0, None, False, arrival_ms)
         for depth, comp in enumerate(path):
             faults = [
                 f
@@ -187,13 +190,13 @@ def simulate(model: SystemModel, scenario: Scenario, seed: int) -> SimulationRes
                 failed += 1
                 cascade_depth = max(cascade_depth, depth)
                 timeouts += 1 if timed_out else 0
-                outcome = _RequestOutcome(False, 0, comp.id, timed_out)
+                outcome = _RequestOutcome(False, 0, comp.id, timed_out, end_ms)
                 break
             cursor_ms = end_ms
         else:
             succeeded += 1
             latencies.append(cursor_ms - arrival_ms)
-            outcome = _RequestOutcome(True, cursor_ms - arrival_ms, None, False)
+            outcome = _RequestOutcome(True, cursor_ms - arrival_ms, None, False, cursor_ms)
         if len(sample) < MAX_SAMPLE:
             sample.append(
                 RequestSample(
@@ -202,6 +205,8 @@ def simulate(model: SystemModel, scenario: Scenario, seed: int) -> SimulationRes
                     latency_ms=outcome.latency_ms,
                     failed_at=outcome.failed_at,
                     timed_out=outcome.timed_out,
+                    arrival_ms=arrival_ms,
+                    finish_ms=outcome.finish_ms,
                 )
             )
     return SimulationResult(

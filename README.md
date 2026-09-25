@@ -56,6 +56,8 @@ Scaffold ready in `wrangler.jsonc` + `schema.sql` + `apps/api/worker.py` + `apps
 
 Production note: the Worker serves the same FastAPI app; swapping the SQLite file store for the D1 binding is a follow-up task verified against a real account (M4b-full). The static demo deploys to Pages as-is and talks to any API base URL.
 
+Open `apps/web/index.html` after `Run` to scrub virtual time: the SVG graph colors failed components red and shows active faults per second (first 500 sampled requests).
+
 ## Environment variables
 
 None required for M0. Server mode (M4) will document `D1_*` bindings in this section.

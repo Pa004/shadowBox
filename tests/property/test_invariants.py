@@ -85,3 +85,14 @@ def test_outage_hurts(seed: int) -> None:
     healthy = simulate(model, _scenario("ok"), seed)
     broken = simulate(model, _scenario("down"), seed)
     assert broken.failed > healthy.failed
+
+
+@given(seed=st.integers(min_value=0, max_value=2**31 - 1))
+def test_sample_times_coherent(seed: int) -> None:
+    result = simulate(_tiny_model(), _scenario("ok"), seed)
+    assert 0 < len(result.sample) <= 500
+    for i, entry in enumerate(result.sample):
+        assert entry.correlation_id == f"req-{i:06d}"
+        assert entry.finish_ms >= entry.arrival_ms
+        if entry.ok:
+            assert entry.latency_ms == entry.finish_ms - entry.arrival_ms
