@@ -1,0 +1,8 @@
+# Card: availability-zone loss takes cache+database down 20s. Expect near-total failure in window.
+scenario:
+  name: zone-loss
+  duration_s: 60
+  workload: { rate_rps: 100, arrival: deterministic }
+  faults:
+    - { target: cache, type: unavailable, start_s: 20, duration_s: 20 }
+    - { target: database, type: unavailable, start_s: 20, duration_s: 20 }

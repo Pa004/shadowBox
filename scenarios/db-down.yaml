@@ -1,0 +1,7 @@
+# Card: database down 10s in a 60s run. Expect ~1000 failed requests (10s x 100rps).
+scenario:
+  name: db-down
+  duration_s: 60
+  workload: { rate_rps: 100, arrival: deterministic }
+  faults:
+    - { target: database, type: unavailable, start_s: 20, duration_s: 10 }

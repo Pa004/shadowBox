@@ -112,7 +112,7 @@ def _process(
             heapq.heappop(runtime.waiter_starts)
         if len(runtime.waiter_starts) >= comp.queue_size:
             return (False, arrival_ms, False, events)  # queue-full drop
-        start_ms = runtime.busy_until[0]
+        start_ms = heapq.heappop(runtime.busy_until)  # consume the earliest slot
         heapq.heappush(runtime.waiter_starts, start_ms)
         depth_now = len(runtime.waiter_starts)
         runtime.stats.max_queue_depth = max(runtime.stats.max_queue_depth, depth_now)
