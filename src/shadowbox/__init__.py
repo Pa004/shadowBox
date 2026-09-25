@@ -1,3 +1,3 @@
-"""ShadowBox M0: contracts + validate (headless, no engine yet)."""
+"""ShadowBox M1: deterministic engine plus metrics and reports (headless)."""
 
-__all__ = ["errors", "model", "dsl"]
+__all__ = ["dsl", "engine", "errors", "metrics", "model", "report"]
