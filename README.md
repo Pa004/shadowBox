@@ -21,6 +21,7 @@ uv sync --group dev
 
 ```powershell
 uv run shadowbox validate examples/checkout/model.yaml --scenario examples/checkout/scenarios/db-failure.yaml
+uv run shadowbox simulate examples/checkout/model.yaml --scenario examples/checkout/scenarios/db-failure.yaml --seed 42 --out report.json
 ```
 
 Exit codes: `0` valid, `3` invalid model/scenario (prints `E_*` code).
@@ -32,10 +33,10 @@ None required for M0. Server mode (M4) will document `D1_*` bindings in this sec
 ## Project structure
 
 ```text
-src/shadowbox/   # model, dsl, cli, errors (M0)
+src/shadowbox/   # model, dsl, cli, errors, engine, metrics, report
 schemas/         # model-v1.json, scenario-v1.json
 examples/        # checkout fixture (api+cache+db) + broken fixtures
-tests/           # unit (M0), property/deterministic (M1)
+tests/           # unit, deterministic (golden seed 42), property (Hypothesis)
 ```
 
 ## Run tests
