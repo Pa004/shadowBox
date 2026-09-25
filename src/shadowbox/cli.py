@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import typer
+import uvicorn
 import yaml
 from rich.console import Console
 
@@ -19,6 +20,7 @@ from shadowbox.errors import SchemaError, ShadowBoxError
 from shadowbox.importers.compose import import_compose
 from shadowbox.metrics import summarize
 from shadowbox.report import build_report
+from shadowbox.store import Store
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()
@@ -178,6 +180,19 @@ def compare(
         console.print(f"[red]regression[/red]: breached {', '.join(sorted(result.breaches))}")
         raise typer.Exit(code=2)
     console.print(f"[green]{result.verdict}[/green]")
+
+
+@app.command()
+def serve(
+    host: str = typer.Option("127.0.0.1", "--host", help="Bind host"),
+    port: int = typer.Option(8000, "--port", help="Bind port"),
+    db: Path = typer.Option(Path("shadowbox.db"), "--db", help="SQLite file"),
+) -> None:
+    """Run the local API server (blocks; Ctrl-C to stop)."""
+    from shadowbox import api as api_mod
+
+    api_mod.store = Store(db)
+    uvicorn.run(api_mod.app, host=host, port=port)
 
 
 if __name__ == "__main__":
