@@ -15,6 +15,10 @@
       <button id="run">Run baseline vs db-down</button>
     </div>
     <pre id="out">Press Run.</pre>
+    <h2>Replay (sampled requests)</h2>
+    <label>t = <span id="tlabel">0</span>s <input id="time" type="range" min="0" max="60" value="0" step="1" /></label>
+    <svg id="graph" width="680" height="220" role="img" aria-label="Component graph"></svg>
+    <pre id="replay">Run first, then scrub time.</pre>
   </main>
   <script src="./app.js"></script>
 </body>
