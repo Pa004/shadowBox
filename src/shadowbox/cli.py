@@ -8,8 +8,14 @@ import yaml
 from rich.console import Console
 
 from shadowbox import engine as engine_mod
+from shadowbox.compare import (
+    DEFAULT_THRESHOLDS,
+    compare_reports,
+    parse_thresholds,
+    seed_warning,
+)
 from shadowbox.dsl import load_model, load_scenario
-from shadowbox.errors import ShadowBoxError
+from shadowbox.errors import SchemaError, ShadowBoxError
 from shadowbox.importers.compose import import_compose
 from shadowbox.metrics import summarize
 from shadowbox.report import build_report
@@ -120,6 +126,58 @@ def _as_text(report: dict[str, object]) -> str:
         f"confidence: {report['confidence']} ({report['calibration_source']})",
     ]
     return "\n".join(lines) + "\n"
+
+
+def _read_report(path: Path) -> dict[str, object]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise SchemaError(f"cannot read report {path}: {exc}") from exc
+    if not isinstance(data, dict) or "metrics" not in data:
+        raise SchemaError(f"{path}: not a shadowbox report")
+    return data
+
+
+@app.command()
+def report(
+    report_path: Path = typer.Argument(..., help="Path to report.json"),
+    format: str = typer.Option("json", "--format", help="json or text"),
+) -> None:
+    """Render an existing report file (exit 0 ok, 3 invalid)."""
+    try:
+        found = _read_report(report_path)
+    except ShadowBoxError as exc:
+        console.print(f"[red]{exc.code}[/red]: {exc}")
+        raise typer.Exit(code=3) from exc
+    if format == "text":
+        console.print(_as_text(found), end="")
+    else:
+        console.print_json(json.dumps(found, indent=2, sort_keys=True))
+
+
+@app.command()
+def compare(
+    a: Path = typer.Option(..., "--a", help="Baseline report.json"),
+    b: Path = typer.Option(..., "--b", help="Candidate report.json"),
+    threshold: str = typer.Option(DEFAULT_THRESHOLDS, "--threshold", help="p99:+10%,..."),
+) -> None:
+    """Compare two reports (exit 0 pass/improvement, 2 regression, 3 invalid)."""
+    try:
+        base = _read_report(a)
+        candidate = _read_report(b)
+        result = compare_reports(base, candidate, parse_thresholds(threshold))
+    except ShadowBoxError as exc:
+        console.print(f"[red]{exc.code}[/red]: {exc}")
+        raise typer.Exit(code=3) from exc
+    warning = seed_warning(base, candidate)
+    if warning is not None:
+        console.print(f"[yellow]warn[/yellow]: {warning}")
+    for metric in sorted(result.deltas):
+        console.print(f"{metric}: {result.deltas[metric]:+.2f}")
+    if result.breaches:
+        console.print(f"[red]regression[/red]: breached {', '.join(sorted(result.breaches))}")
+        raise typer.Exit(code=2)
+    console.print(f"[green]{result.verdict}[/green]")
 
 
 if __name__ == "__main__":

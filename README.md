@@ -23,9 +23,11 @@ uv sync --group dev
 uv run shadowbox import --from examples/checkout/docker-compose.yaml --out model.yaml
 uv run shadowbox validate examples/checkout/model.yaml --scenario examples/checkout/scenarios/db-failure.yaml
 uv run shadowbox simulate examples/checkout/model.yaml --scenario examples/checkout/scenarios/db-failure.yaml --seed 42 --out report.json
+uv run shadowbox report report.json --format text
+uv run shadowbox compare --a base.json --b report.json
 ```
 
-Exit codes: `0` valid, `3` invalid model/scenario (prints `E_*` code).
+Exit codes: `0` valid/pass, `2` scenario regression (compare), `3` invalid model/scenario/report (prints `E_*` code).
 
 Import notes: every performance field is an estimated default (see warnings). Calibrate before trusting output.
 
@@ -51,6 +53,11 @@ uv run ruff check .
 uv run mypy src
 uv run pytest
 ```
+
+Benchmarks (reference: i7-1255U, 16GB, Python 3.13; SLO: 50k events < 2s):
+
+- checkout db-failure (6k reqs, 85k events): ~0.05s
+- 60k reqs, 840k events: ~0.6s
 
 ## Deploy notes
 
