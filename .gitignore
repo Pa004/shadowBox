@@ -11,3 +11,8 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# Local server artifacts (never commit)
+*.db
+report.json
+model.yaml

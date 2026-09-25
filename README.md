@@ -33,6 +33,14 @@ Import notes: every performance field is an estimated default (see warnings). Ca
 
 Chaos cards in `scenarios/` run against the checkout model: `db-down`, `cache-poison`, `latency-500ms`, `traffic-10x`, `zone-loss`, `slow-dependency`, `queue-overflow`.
 
+## API server (local)
+
+```powershell
+uv run uvicorn shadowbox.api:app --port 8000
+```
+
+Endpoints: `POST /api/v1/models`, `GET /api/v1/models/{id}`, `POST /api/v1/simulations?model_id=...`, `GET /api/v1/simulations/{id}[/events|/metrics|/report]`. Events are paginated (`limit` 1..1000, `cursor` offset over the stored 500-request sample). State lives in `shadowbox.db` (git-ignored, created on first use).
+
 ## Environment variables
 
 None required for M0. Server mode (M4) will document `D1_*` bindings in this section.
