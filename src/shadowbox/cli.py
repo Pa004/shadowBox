@@ -4,11 +4,13 @@ import json
 from pathlib import Path
 
 import typer
+import yaml
 from rich.console import Console
 
 from shadowbox import engine as engine_mod
 from shadowbox.dsl import load_model, load_scenario
 from shadowbox.errors import ShadowBoxError
+from shadowbox.importers.compose import import_compose
 from shadowbox.metrics import summarize
 from shadowbox.report import build_report
 
@@ -36,7 +38,27 @@ def validate(
 @app.command()
 def version() -> None:
     """Print the package version (also keeps `validate` as a named subcommand)."""
-    console.print("shadowbox 0.1.0 (M1)")
+    console.print("shadowbox 0.1.0 (M2)")
+
+
+@app.command(name="import")
+def import_model(
+    from_path: Path = typer.Option(..., "--from", help="Path to docker-compose.yaml"),
+    out: Path = typer.Option(Path("model.yaml"), "--out", help="Imported model output path"),
+) -> None:
+    """Import a compose file into a validated model (all fields estimated)."""
+    try:
+        model, warnings = import_compose(from_path)
+    except ShadowBoxError as exc:
+        console.print(f"[red]{exc.code}[/red]: {exc}")
+        raise typer.Exit(code=3) from exc
+    out.write_text(
+        yaml.safe_dump(model.model_dump(mode="json", by_alias=True), sort_keys=False),
+        encoding="utf-8",
+    )
+    for warning in warnings:
+        console.print(f"[yellow]warn[/yellow]: {warning}")
+    console.print(f"[green]imported[/green]: {len(model.components)} components -> {out}")
 
 
 @app.command()

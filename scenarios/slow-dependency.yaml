@@ -1,0 +1,8 @@
+# Card: slow cache dependency (+100ms, under the 200ms cache timeout).
+# Expect +~100ms latency delta vs baseline, no errors.
+scenario:
+  name: slow-dependency
+  duration_s: 60
+  workload: { rate_rps: 100, arrival: deterministic }
+  faults:
+    - { target: cache, type: latency, extra_ms: 100, start_s: 0, duration_s: 60 }

@@ -1,0 +1,13 @@
+# Checkout stack mirrored from examples/checkout/model.yaml (M2 import fixture).
+services:
+  api:
+    image: checkout/api:1.4
+    depends_on:
+      - cache
+      - database
+  cache:
+    image: redis:7
+    links:
+      - database
+  database:
+    image: postgres:16

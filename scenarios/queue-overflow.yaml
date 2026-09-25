@@ -1,0 +1,6 @@
+# Card: queue overflow under 3000rps for 10s. Expect queue-full drops on api, error_rate > 0.
+scenario:
+  name: queue-overflow
+  duration_s: 10
+  workload: { rate_rps: 3000, arrival: deterministic }
+  faults: []

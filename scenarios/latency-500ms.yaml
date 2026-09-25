@@ -1,0 +1,8 @@
+# Card: database +500ms for the whole run (505ms > 500ms db timeout).
+# Expect near-total timeouts; boundary requests past the window edge may still succeed.
+scenario:
+  name: latency-500ms
+  duration_s: 60
+  workload: { rate_rps: 100, arrival: deterministic }
+  faults:
+    - { target: database, type: latency, extra_ms: 500, start_s: 0, duration_s: 60 }

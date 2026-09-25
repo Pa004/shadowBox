@@ -1,0 +1,6 @@
+# Card: Black Friday 10x (100 -> 1000rps). Checkout capacity holds: expect flat latency, no drops.
+scenario:
+  name: traffic-10x
+  duration_s: 60
+  workload: { rate_rps: 1000, arrival: deterministic }
+  faults: []

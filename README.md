@@ -20,11 +20,16 @@ uv sync --group dev
 ## Run in development
 
 ```powershell
+uv run shadowbox import --from examples/checkout/docker-compose.yaml --out model.yaml
 uv run shadowbox validate examples/checkout/model.yaml --scenario examples/checkout/scenarios/db-failure.yaml
 uv run shadowbox simulate examples/checkout/model.yaml --scenario examples/checkout/scenarios/db-failure.yaml --seed 42 --out report.json
 ```
 
 Exit codes: `0` valid, `3` invalid model/scenario (prints `E_*` code).
+
+Import notes: every performance field is an estimated default (see warnings). Calibrate before trusting output.
+
+Chaos cards in `scenarios/` run against the checkout model: `db-down`, `cache-poison`, `latency-500ms`, `traffic-10x`, `zone-loss`, `slow-dependency`, `queue-overflow`.
 
 ## Environment variables
 

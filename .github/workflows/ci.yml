@@ -17,3 +17,6 @@ jobs:
       - run: uv run mypy src
       - run: uv run pytest
       - run: uv run shadowbox validate examples/checkout/model.yaml --scenario examples/checkout/scenarios/db-failure.yaml
+      - run: uv run shadowbox import --from examples/checkout/docker-compose.yaml --out /tmp/imported.yaml
+      - run: uv run shadowbox validate /tmp/imported.yaml --scenario scenarios/db-down.yaml
+      - run: uv run shadowbox simulate examples/checkout/model.yaml --scenario scenarios/queue-overflow.yaml --seed 42 --out /tmp/report.json

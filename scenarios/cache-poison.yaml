@@ -1,0 +1,7 @@
+# Card: cache poisoned (unavailable) 10s. Every request visits cache: expect ~1000 failed (10s x 100rps).
+scenario:
+  name: cache-poison
+  duration_s: 60
+  workload: { rate_rps: 100, arrival: deterministic }
+  faults:
+    - { target: cache, type: unavailable, start_s: 20, duration_s: 10 }
