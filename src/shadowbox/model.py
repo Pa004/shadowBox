@@ -33,7 +33,7 @@ class Connection(BaseModel):
 
 
 class SystemModel(BaseModel):
-    components: list[Component]
+    components: list[Component] = Field(min_length=1)
     connections: list[Connection] = Field(default_factory=list)
 
     @field_validator("components")

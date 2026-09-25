@@ -15,6 +15,7 @@ from shadowbox.model import Component, Fault, Scenario, SystemModel
 
 MS_PER_S = 1000
 MAX_REQUESTS = 200_000
+MAX_SAMPLE = 500  # stored request summaries; full event log deferred to M5
 
 
 @dataclass
@@ -32,6 +33,15 @@ class _Runtime:
 
 
 @dataclass
+class RequestSample:
+    correlation_id: str
+    ok: bool
+    latency_ms: int
+    failed_at: str | None
+    timed_out: bool
+
+
+@dataclass
 class SimulationResult:
     total: int
     succeeded: int
@@ -41,6 +51,7 @@ class SimulationResult:
     cascade_depth: int  # max failing-hop index over failed requests
     events_processed: int
     component_stats: dict[str, ComponentStats]
+    sample: list[RequestSample] = field(default_factory=list)  # first MAX_SAMPLE
 
 
 def build_path(model: SystemModel) -> list[Component]:
@@ -132,6 +143,14 @@ def _process(
     return (True, busy_until, False, events)
 
 
+@dataclass
+class _RequestOutcome:
+    ok: bool
+    latency_ms: int
+    failed_at: str | None
+    timed_out: bool
+
+
 def simulate(model: SystemModel, scenario: Scenario, seed: int) -> SimulationResult:
     """Run the scenario deterministically; same inputs always give same outputs."""
     total = scenario.workload.rate_rps * scenario.duration_s
@@ -145,6 +164,7 @@ def simulate(model: SystemModel, scenario: Scenario, seed: int) -> SimulationRes
     rng = random.Random(seed)
     interval_ms = MS_PER_S / scenario.workload.rate_rps
     latencies: list[int] = []
+    sample: list[RequestSample] = []
     succeeded = 0
     failed = 0
     timeouts = 0
@@ -154,6 +174,7 @@ def simulate(model: SystemModel, scenario: Scenario, seed: int) -> SimulationRes
         arrival_ms = int(i * interval_ms)
         cursor_ms = arrival_ms
         events += 2  # request-created, request-completed
+        outcome = _RequestOutcome(ok=True, latency_ms=0, failed_at=None, timed_out=False)
         for depth, comp in enumerate(path):
             faults = [
                 f
@@ -166,11 +187,23 @@ def simulate(model: SystemModel, scenario: Scenario, seed: int) -> SimulationRes
                 failed += 1
                 cascade_depth = max(cascade_depth, depth)
                 timeouts += 1 if timed_out else 0
+                outcome = _RequestOutcome(False, 0, comp.id, timed_out)
                 break
             cursor_ms = end_ms
         else:
             succeeded += 1
             latencies.append(cursor_ms - arrival_ms)
+            outcome = _RequestOutcome(True, cursor_ms - arrival_ms, None, False)
+        if len(sample) < MAX_SAMPLE:
+            sample.append(
+                RequestSample(
+                    correlation_id=f"req-{i:06d}",
+                    ok=outcome.ok,
+                    latency_ms=outcome.latency_ms,
+                    failed_at=outcome.failed_at,
+                    timed_out=outcome.timed_out,
+                )
+            )
     return SimulationResult(
         total=total,
         succeeded=succeeded,
@@ -180,4 +213,5 @@ def simulate(model: SystemModel, scenario: Scenario, seed: int) -> SimulationRes
         cascade_depth=cascade_depth,
         events_processed=events,
         component_stats={cid: rt.stats for cid, rt in runtimes.items()},
+        sample=sample,
     )
