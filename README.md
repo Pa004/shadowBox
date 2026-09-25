@@ -41,6 +41,21 @@ uv run uvicorn shadowbox.api:app --port 8000
 
 Endpoints: `POST /api/v1/models`, `GET /api/v1/models/{id}`, `POST /api/v1/simulations?model_id=...`, `GET /api/v1/simulations/{id}[/events|/metrics|/report]`. Events are paginated (`limit` 1..1000, `cursor` offset over the stored 500-request sample). State lives in `shadowbox.db` (git-ignored, created on first use).
 
+## Deploy (Cloudflare free tier, no card)
+
+Scaffold ready in `wrangler.jsonc` + `schema.sql` + `apps/api/worker.py` + `apps/web/` (static demo, no build step). Remaining steps need your Cloudflare account:
+
+```powershell
+!npm install -g wrangler
+!wrangler login
+!wrangler d1 create shadowbox  # paste database_id into wrangler.jsonc
+!wrangler d1 execute shadowbox --file schema.sql
+!uvx --from workers-py pywrangler dev   # local Worker emulation, no account needed
+!wrangler deploy
+```
+
+Production note: the Worker serves the same FastAPI app; swapping the SQLite file store for the D1 binding is a follow-up task verified against a real account (M4b-full). The static demo deploys to Pages as-is and talks to any API base URL.
+
 ## Environment variables
 
 None required for M0. Server mode (M4) will document `D1_*` bindings in this section.
