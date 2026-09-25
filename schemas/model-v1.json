@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shadowbox.dev/schemas/model-v1.json",
+  "title": "ShadowBox System Model v1 (M0)",
+  "type": "object",
+  "required": ["components"],
+  "properties": {
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "capacity", "latency_ms", "timeout_ms", "queue_size", "queue_policy"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "type": { "enum": ["service", "database", "cache"] },
+          "capacity": { "type": "integer", "minimum": 1 },
+          "latency_ms": {
+            "type": "object",
+            "required": ["base"],
+            "properties": {
+              "base": { "type": "integer", "minimum": 0 },
+              "jitter_ms": { "type": "integer", "minimum": 0, "default": 0 }
+            },
+            "additionalProperties": false
+          },
+          "timeout_ms": { "type": "integer", "minimum": 1 },
+          "queue_size": { "type": "integer", "minimum": 1 },
+          "queue_policy": { "enum": ["drop", "fifo"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "connections": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": ["from", "to"],
+        "properties": {
+          "from": { "type": "string", "minLength": 1 },
+          "to": { "type": "string", "minLength": 1 },
+          "kind": { "enum": ["sync"], "default": "sync" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

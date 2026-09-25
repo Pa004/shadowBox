@@ -1,0 +1,23 @@
+# Broken fixture: cycle api -> database -> api (must fail with E_CYCLE).
+components:
+  - id: api
+    type: service
+    capacity: 10
+    latency_ms: { base: 10 }
+    timeout_ms: 500
+    queue_size: 50
+    queue_policy: drop
+
+  - id: database
+    type: database
+    capacity: 5
+    latency_ms: { base: 5 }
+    timeout_ms: 500
+    queue_size: 50
+    queue_policy: fifo
+
+connections:
+  - from: api
+    to: database
+  - from: database
+    to: api

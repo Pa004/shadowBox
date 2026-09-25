@@ -1,0 +1,33 @@
+# Canonical M0 fixture: ecommerce checkout (api + cache + db).
+components:
+  - id: api
+    type: service
+    capacity: 50
+    latency_ms: { base: 20, jitter_ms: 5 }
+    timeout_ms: 1000
+    queue_size: 200
+    queue_policy: drop
+
+  - id: cache
+    type: cache
+    capacity: 100
+    latency_ms: { base: 2, jitter_ms: 1 }
+    timeout_ms: 200
+    queue_size: 500
+    queue_policy: drop
+
+  - id: database
+    type: database
+    capacity: 20
+    latency_ms: { base: 5, jitter_ms: 1 }
+    timeout_ms: 500
+    queue_size: 100
+    queue_policy: fifo
+
+connections:
+  - from: api
+    to: cache
+  - from: api
+    to: database
+  - from: cache
+    to: database

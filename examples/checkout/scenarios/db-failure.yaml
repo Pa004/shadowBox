@@ -1,0 +1,12 @@
+# Chaos card: database down for 10s inside a 60s run at 100 rps.
+scenario:
+  name: database-failure
+  duration_s: 60
+  workload:
+    rate_rps: 100
+    arrival: deterministic
+  faults:
+    - target: database
+      type: unavailable
+      start_s: 20
+      duration_s: 10

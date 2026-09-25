@@ -1,0 +1,13 @@
+# Ignore all Markdown except README.md (spec and agent docs stay local)
+*.md
+**/*.md
+!README.md
+!**/README.md
+
+# Python runtimes (never commit)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

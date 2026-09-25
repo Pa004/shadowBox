@@ -1,0 +1,13 @@
+# Broken fixture: connection to unknown component (must fail with E_REF).
+components:
+  - id: api
+    type: service
+    capacity: 10
+    latency_ms: { base: 10 }
+    timeout_ms: 500
+    queue_size: 50
+    queue_policy: drop
+
+connections:
+  - from: api
+    to: ghost

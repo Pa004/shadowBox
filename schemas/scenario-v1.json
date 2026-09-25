@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shadowbox.dev/schemas/scenario-v1.json",
+  "title": "ShadowBox Scenario v1 (M0)",
+  "type": "object",
+  "required": ["name", "duration_s", "workload"],
+  "properties": {
+    "name": { "type": "string", "minLength": 1 },
+    "duration_s": { "type": "integer", "minimum": 1 },
+    "workload": {
+      "type": "object",
+      "required": ["rate_rps"],
+      "properties": {
+        "rate_rps": { "type": "integer", "minimum": 1 },
+        "arrival": { "enum": ["deterministic"], "default": "deterministic" }
+      },
+      "additionalProperties": false
+    },
+    "faults": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": ["target", "type", "start_s", "duration_s"],
+        "properties": {
+          "target": { "type": "string", "minLength": 1 },
+          "type": {
+            "enum": ["unavailable", "latency", "error-rate", "capacity-reduction", "packet-loss", "resource-saturation"]
+          },
+          "start_s": { "type": "integer", "minimum": 0 },
+          "duration_s": { "type": "integer", "minimum": 0 },
+          "extra_ms": { "type": "integer", "minimum": 0, "default": 0 },
+          "probability": { "type": "number", "minimum": 0.0, "maximum": 1.0, "default": 0.0 },
+          "factor": { "type": "number", "exclusiveMinimum": 0.0, "maximum": 1.0, "default": 1.0 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
