@@ -124,3 +124,9 @@ def test_cli_report_renders(tmp_path: Path) -> None:
     path = _write(tmp_path, "r.json", payload)
     assert runner.invoke(app, ["report", str(path), "--format", "text"]).exit_code == 0
     assert runner.invoke(app, ["report", str(path)]).exit_code == 0
+
+
+def test_cli_serve_help() -> None:
+    done = runner.invoke(app, ["serve", "--help"])
+    assert done.exit_code == 0
+    assert "--port" in done.output

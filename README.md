@@ -37,6 +37,7 @@ Chaos cards in `scenarios/` run against the checkout model: `db-down`, `cache-po
 
 ```powershell
 uv run uvicorn shadowbox.api:app --port 8000
+# or: uv run shadowbox serve --port 8000
 ```
 
 Endpoints: `POST /api/v1/models`, `GET /api/v1/models/{id}`, `POST /api/v1/simulations?model_id=...`, `GET /api/v1/simulations/{id}[/events|/metrics|/report]`. Events are paginated (`limit` 1..1000, `cursor` offset over the stored 500-request sample). State lives in `shadowbox.db` (git-ignored, created on first use).
