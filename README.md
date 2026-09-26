@@ -59,6 +59,19 @@ Production note: the Worker serves the same FastAPI app; swapping the SQLite fil
 
 Open `apps/web/index.html` after `Run` to scrub virtual time: the SVG graph colors failed components red and shows active faults per second (first 500 sampled requests).
 
+## Studio (React + Cytoscape)
+
+Full UI in `apps/studio/` (Vite, strict TS). Needs Node deps (run yourself):
+
+```powershell
+cd apps/studio
+npm install
+npm run build   # tsc plus vite
+npm run dev     # /api proxies to 127.0.0.1:8000
+```
+
+Run any scenario vs baseline, inspect p99/error verdict, scrub the failure cascade on the Cytoscape graph.
+
 ## Environment variables
 
 None required for M0. Server mode (M4) will document `D1_*` bindings in this section.
