@@ -59,9 +59,11 @@ Scaffold ready in `wrangler.jsonc` + `schema.sql` + `apps/api/worker.py` + `apps
 !npm install -g wrangler
 !wrangler login
 !wrangler d1 create shadowbox  # paste database_id into wrangler.jsonc
-!wrangler d1 execute shadowbox --file schema.sql
-!uvx --from workers-py pywrangler dev   # local Worker emulation, no account needed
-!wrangler deploy
+!wrangler d1 execute shadowbox --remote --file schema.sql  # --remote matters: without it you seed local only
+!uv tool install workers-py
+!pywrangler sync
+!powershell -ExecutionPolicy ByPass -File scripts/vendor-worker.ps1  # bundle local src, not just PyPI deps
+!pywrangler deploy
 ```
 
 Production note: the Worker (`apps/api/worker.py`) serves the same FastAPI app built by `create_app()` with no store, so each request gets a `D1Store` from the `DB` binding (schema in `schema.sql`). Local runs inject SQLite. `D1Store` is contract-tested against a fake binding; production verification needs a real account (M4b-full). The static demo deploys to Pages as-is and talks to any API base URL.

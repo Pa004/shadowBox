@@ -21,6 +21,12 @@ model.yaml
 # Build output (never commit)
 dist/
 
+# Cloudflare worker artifacts (never commit)
+.venv-workers/
+python_modules/
+pylock.toml
+.wrangler/
+
 # Node (never commit)
 node_modules/
 dist/
