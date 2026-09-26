@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  // M4b scaffold: fill database_id after `wrangler d1 create shadowbox`.
+  // D1 database `shadowbox` (ENAM). Binding DB matches the Worker's store lookup.
   "name": "shadowbox-api",
   "main": "apps/api/worker.py",
   "compatibility_date": "2026-09-03",
@@ -14,7 +14,7 @@
     {
       "binding": "DB",
       "database_name": "shadowbox",
-      "database_id": "REPLACE_AFTER_WRANGLER_D1_CREATE"
+      "database_id": "13323bef-4a4a-4392-b5e8-ef3412ef02ad"
     }
   ]
 }
