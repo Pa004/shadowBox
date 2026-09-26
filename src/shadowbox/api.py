@@ -1,29 +1,26 @@
-"""FastAPI surface over the headless core (M4a local server, M4b Worker later).
+"""FastAPI surface over the headless core (local server and Worker share it).
 
-Runs synchronously and returns the completed simulation (201) with a
-`status` field the Worker async path will reuse for queued/running states.
 Local-only: no authentication; bind to localhost unless you know why not.
+The Worker injects a D1 store per request; local runs use SQLite.
 """
 
 from dataclasses import asdict as _asdict
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ValidationError
 
 from shadowbox import engine as engine_mod
+from shadowbox.dstore import AsyncStore, D1Store
 from shadowbox.errors import ShadowBoxError
 from shadowbox.metrics import summarize
 from shadowbox.model import Scenario, SystemModel
 from shadowbox.report import build_report
-from shadowbox.store import Store
+from shadowbox.store import AsyncSqliteStore
 
 MAX_EVENT_LIMIT = 1000
-
-app = FastAPI(title="ShadowBox", version="0.1.0")
-store = Store(Path("shadowbox.db"))
 
 
 class ScenarioIn(BaseModel):
@@ -35,102 +32,121 @@ def _as_422(code: str, message: str) -> JSONResponse:
     return JSONResponse(status_code=422, content={"code": code, "detail": message})
 
 
-@app.post("/api/v1/models", status_code=201)
-def create_model(body: dict[str, Any]) -> dict[str, str]:
-    try:
-        SystemModel.model_validate(body)
-    except ValidationError as exc:
-        return _as_422("E_SCHEMA", str(exc))  # type: ignore[return-value]
-    return {"id": store.save_model(body)}
+def create_app(store: AsyncStore | None = None) -> FastAPI:
+    """Build the app; without a store, each request uses the D1 binding (Worker)."""
+    app = FastAPI(title="ShadowBox", version="0.3.0")
+
+    async def get_store(request: Request) -> AsyncStore:
+        if store is not None:
+            return store
+        env = request.scope.get("env", {})
+        assert isinstance(env, dict) and "DB" in env, "D1 binding missing (Worker only)"
+        return D1Store(env["DB"])
+
+    @app.post("/api/v1/models", status_code=201)
+    async def create_model(
+        body: dict[str, Any], current: AsyncStore = Depends(get_store)
+    ) -> dict[str, str]:
+        try:
+            SystemModel.model_validate(body)
+        except ValidationError as exc:
+            return _as_422("E_SCHEMA", str(exc))  # type: ignore[return-value]
+        return {"id": await current.save_model(body)}
+
+    @app.get("/api/v1/models/{model_id}")
+    async def get_model(model_id: str, current: AsyncStore = Depends(get_store)) -> dict[str, Any]:
+        body = await current.get_model(model_id)
+        if body is None:
+            raise HTTPException(status_code=404, detail="model not found")
+        return {"id": model_id, "model": body}
+
+    @app.post("/api/v1/simulations", status_code=201)
+    async def create_simulation(
+        model_id: str, payload: ScenarioIn, current: AsyncStore = Depends(get_store)
+    ) -> dict[str, Any]:
+        body = await current.get_model(model_id)
+        if body is None:
+            raise HTTPException(status_code=404, detail="model not found")
+        try:
+            system = SystemModel.model_validate(body)
+            scenario = Scenario.model_validate(payload.scenario.get("scenario", payload.scenario))
+            result = engine_mod.simulate(system, scenario, payload.seed)
+            metrics = summarize(system, result, scenario.duration_s)
+            report = build_report(
+                system.model_dump(mode="json", by_alias=True),
+                scenario.model_dump(mode="json"),
+                payload.seed,
+                metrics,
+                result.events_processed,
+            )
+            report["sample"] = [_asdict(s) for s in result.sample]
+        except ShadowBoxError as exc:
+            return _as_422(exc.code, str(exc))  # type: ignore[return-value]
+        sim_id = await current.save_simulation(model_id, payload.scenario, payload.seed, report)
+        return {"id": sim_id, "status": "completed", "metrics_hash": report["metrics_hash"]}
+
+    @app.get("/api/v1/simulations/{sim_id}")
+    async def get_simulation(
+        sim_id: str, current: AsyncStore = Depends(get_store)
+    ) -> dict[str, Any]:
+        found = await current.get_simulation(sim_id)
+        if found is None:
+            raise HTTPException(status_code=404, detail="simulation not found")
+        report = found["report"]
+        assert isinstance(report, dict)
+        return {
+            "id": sim_id,
+            "status": found["status"],
+            "metrics_hash": report.get("metrics_hash"),
+            "metrics": report.get("metrics"),
+        }
+
+    @app.get("/api/v1/simulations/{sim_id}/events")
+    async def get_events(
+        sim_id: str, current: AsyncStore = Depends(get_store), limit: int = 100, cursor: int = 0
+    ) -> dict[str, Any]:
+        found = await current.get_simulation(sim_id)
+        if found is None:
+            raise HTTPException(status_code=404, detail="simulation not found")
+        if limit < 1 or limit > MAX_EVENT_LIMIT:
+            raise HTTPException(status_code=422, detail=f"limit must be 1..{MAX_EVENT_LIMIT}")
+        if cursor < 0:
+            raise HTTPException(status_code=422, detail="cursor must be >= 0")
+        report = found["report"]
+        assert isinstance(report, dict)
+        sample = report.get("sample", [])
+        assert isinstance(sample, list)
+        page = sample[cursor : cursor + limit]
+        nxt = cursor + len(page)
+        return {
+            "events": page,
+            "next_cursor": nxt if nxt < len(sample) else None,
+            "total_sampled": len(sample),
+        }
+
+    @app.get("/api/v1/simulations/{sim_id}/metrics")
+    async def get_metrics(
+        sim_id: str, current: AsyncStore = Depends(get_store)
+    ) -> dict[str, Any]:
+        found = await current.get_simulation(sim_id)
+        if found is None:
+            raise HTTPException(status_code=404, detail="simulation not found")
+        report = found["report"]
+        assert isinstance(report, dict)
+        metrics = report.get("metrics")
+        assert isinstance(metrics, dict)
+        return metrics
+
+    @app.get("/api/v1/simulations/{sim_id}/report")
+    async def get_report(sim_id: str, current: AsyncStore = Depends(get_store)) -> dict[str, Any]:
+        found = await current.get_simulation(sim_id)
+        if found is None:
+            raise HTTPException(status_code=404, detail="simulation not found")
+        report = found["report"]
+        assert isinstance(report, dict)
+        return report
+
+    return app
 
 
-@app.get("/api/v1/models/{model_id}")
-def get_model(model_id: str) -> dict[str, Any]:
-    body = store.get_model(model_id)
-    if body is None:
-        raise HTTPException(status_code=404, detail="model not found")
-    return {"id": model_id, "model": body}
-
-
-@app.post("/api/v1/simulations", status_code=201)
-def create_simulation(model_id: str, payload: ScenarioIn) -> dict[str, Any]:
-    body = store.get_model(model_id)
-    if body is None:
-        raise HTTPException(status_code=404, detail="model not found")
-    try:
-        system = SystemModel.model_validate(body)
-        scenario = Scenario.model_validate(payload.scenario.get("scenario", payload.scenario))
-        result = engine_mod.simulate(system, scenario, payload.seed)
-        metrics = summarize(system, result, scenario.duration_s)
-        report = build_report(
-            system.model_dump(mode="json", by_alias=True),
-            scenario.model_dump(mode="json"),
-            payload.seed,
-            metrics,
-            result.events_processed,
-        )
-        sample = [_asdict(s) for s in result.sample]
-        report["sample"] = sample
-    except ShadowBoxError as exc:
-        return _as_422(exc.code, str(exc))  # type: ignore[return-value]
-    sim_id = store.save_simulation(model_id, payload.scenario, payload.seed, report)
-    return {"id": sim_id, "status": "completed", "metrics_hash": report["metrics_hash"]}
-
-
-@app.get("/api/v1/simulations/{sim_id}")
-def get_simulation(sim_id: str) -> dict[str, Any]:
-    found = store.get_simulation(sim_id)
-    if found is None:
-        raise HTTPException(status_code=404, detail="simulation not found")
-    report = found["report"]
-    assert isinstance(report, dict)
-    return {
-        "id": sim_id,
-        "status": found["status"],
-        "metrics_hash": report.get("metrics_hash"),
-        "metrics": report.get("metrics"),
-    }
-
-
-@app.get("/api/v1/simulations/{sim_id}/events")
-def get_events(sim_id: str, limit: int = 100, cursor: int = 0) -> dict[str, Any]:
-    found = store.get_simulation(sim_id)
-    if found is None:
-        raise HTTPException(status_code=404, detail="simulation not found")
-    if limit < 1 or limit > MAX_EVENT_LIMIT:
-        raise HTTPException(status_code=422, detail=f"limit must be 1..{MAX_EVENT_LIMIT}")
-    if cursor < 0:
-        raise HTTPException(status_code=422, detail="cursor must be >= 0")
-    report = found["report"]
-    assert isinstance(report, dict)
-    sample = report.get("sample", [])
-    assert isinstance(sample, list)
-    page = sample[cursor : cursor + limit]
-    nxt = cursor + len(page)
-    return {
-        "events": page,
-        "next_cursor": nxt if nxt < len(sample) else None,
-        "total_sampled": len(sample),
-    }
-
-
-@app.get("/api/v1/simulations/{sim_id}/metrics")
-def get_metrics(sim_id: str) -> dict[str, Any]:
-    found = store.get_simulation(sim_id)
-    if found is None:
-        raise HTTPException(status_code=404, detail="simulation not found")
-    report = found["report"]
-    assert isinstance(report, dict)
-    metrics = report.get("metrics")
-    assert isinstance(metrics, dict)
-    return metrics
-
-
-@app.get("/api/v1/simulations/{sim_id}/report")
-def get_report(sim_id: str) -> dict[str, Any]:
-    found = store.get_simulation(sim_id)
-    if found is None:
-        raise HTTPException(status_code=404, detail="simulation not found")
-    report = found["report"]
-    assert isinstance(report, dict)
-    return report
+app = create_app(AsyncSqliteStore(Path("shadowbox.db")))

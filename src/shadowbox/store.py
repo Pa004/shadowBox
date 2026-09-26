@@ -83,3 +83,24 @@ class Store:
             "status": row[3],
             "report": json.loads(row[4]),
         }
+
+
+class AsyncSqliteStore:
+    """Async-faced SQLite store for the ASGI app (calls stay fast and local)."""
+
+    def __init__(self, path: Path) -> None:
+        self._inner = Store(path)
+
+    async def save_model(self, body: dict[str, Any]) -> str:
+        return self._inner.save_model(body)
+
+    async def get_model(self, model_id: str) -> dict[str, Any] | None:
+        return self._inner.get_model(model_id)
+
+    async def save_simulation(
+        self, model_id: str, scenario: dict[str, Any], seed: int, report: dict[str, Any]
+    ) -> str:
+        return self._inner.save_simulation(model_id, scenario, seed, report)
+
+    async def get_simulation(self, sim_id: str) -> dict[str, Any] | None:
+        return self._inner.get_simulation(sim_id)

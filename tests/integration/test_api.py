@@ -5,16 +5,15 @@ from pathlib import Path
 import yaml
 from fastapi.testclient import TestClient
 
-from shadowbox import api as api_mod
-from shadowbox.store import Store
+from shadowbox.api import create_app
+from shadowbox.store import AsyncSqliteStore
 
 ROOT = Path(__file__).resolve().parents[2]
 EXAMPLE = ROOT / "src" / "shadowbox" / "data" / "example"
 
 
 def _client(tmp_path: Path) -> TestClient:
-    api_mod.store = Store(tmp_path / "test.db")
-    return TestClient(api_mod.app)
+    return TestClient(create_app(AsyncSqliteStore(tmp_path / "test.db")))
 
 
 def _model_body() -> dict[str, object]:
