@@ -36,8 +36,9 @@ line-length = 100
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.ruff.lint.per-file-ignores]
-# Typer's documented pattern uses Argument/Option calls as defaults.
+# Typer defaults and FastAPI Depends are documented framework patterns.
 "src/shadowbox/cli.py" = ["B008"]
+"src/shadowbox/api.py" = ["B008"]
 
 [tool.mypy]
 python_version = "3.13"

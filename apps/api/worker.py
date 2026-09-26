@@ -17,6 +17,7 @@ except ImportError as exc:
         "workers runtime missing: run inside `pywrangler dev`, not plain python"
     ) from exc
 
-from shadowbox.api import app
+from shadowbox.api import create_app
 
-Default = asgi.entrypoint(app)
+# No store: each request builds a D1Store from the Worker's DB binding.
+Default = asgi.entrypoint(create_app())

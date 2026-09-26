@@ -64,7 +64,7 @@ Scaffold ready in `wrangler.jsonc` + `schema.sql` + `apps/api/worker.py` + `apps
 !wrangler deploy
 ```
 
-Production note: the Worker serves the same FastAPI app; swapping the SQLite file store for the D1 binding is a follow-up task verified against a real account (M4b-full). The static demo deploys to Pages as-is and talks to any API base URL.
+Production note: the Worker (`apps/api/worker.py`) serves the same FastAPI app built by `create_app()` with no store, so each request gets a `D1Store` from the `DB` binding (schema in `schema.sql`). Local runs inject SQLite. `D1Store` is contract-tested against a fake binding; production verification needs a real account (M4b-full). The static demo deploys to Pages as-is and talks to any API base URL.
 
 Open `apps/web/index.html` after `Run` to scrub virtual time: the SVG graph colors failed components red and shows active faults per second (first 500 sampled requests).
 

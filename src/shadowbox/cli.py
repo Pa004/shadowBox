@@ -23,7 +23,6 @@ from shadowbox.errors import SchemaError, ShadowBoxError
 from shadowbox.importers.compose import import_compose
 from shadowbox.metrics import summarize
 from shadowbox.report import build_report
-from shadowbox.store import Store
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()
@@ -197,9 +196,9 @@ def serve(
 ) -> None:
     """Run the local API server (blocks; Ctrl-C to stop)."""
     from shadowbox import api as api_mod
+    from shadowbox.store import AsyncSqliteStore
 
-    api_mod.store = Store(db)
-    uvicorn.run(api_mod.app, host=host, port=port)
+    uvicorn.run(api_mod.create_app(AsyncSqliteStore(db)), host=host, port=port)
 
 
 @app.command(name="init")
