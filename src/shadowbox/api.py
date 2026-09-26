@@ -1,10 +1,11 @@
 """FastAPI surface over the headless core (M4a local server, M4b Worker later).
 
-Runs synchronously: our SLO sizes finish in milliseconds, so POST returns
-the completed simulation directly while keeping the 202-shaped envelope
-(status field) the Worker async path will reuse.
+Runs synchronously and returns the completed simulation (201) with a
+`status` field the Worker async path will reuse for queued/running states.
+Local-only: no authentication; bind to localhost unless you know why not.
 """
 
+from dataclasses import asdict as _asdict
 from pathlib import Path
 from typing import Any
 
@@ -68,7 +69,7 @@ def create_simulation(model_id: str, payload: ScenarioIn) -> dict[str, Any]:
             metrics,
             result.events_processed,
         )
-        sample = [s.__dict__ for s in result.sample]
+        sample = [_asdict(s) for s in result.sample]
         report["sample"] = sample
     except ShadowBoxError as exc:
         return _as_422(exc.code, str(exc))  # type: ignore[return-value]
