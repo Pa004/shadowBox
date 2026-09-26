@@ -32,11 +32,12 @@ class D1Store:
         self._db = db
 
     async def _all(self, sql: str, *params: Any) -> list[Any]:
+        # Rows support string-key access both as dicts (tests) and as JS
+        # proxies (Worker runtime): row["col"] works in both worlds.
         stmt = self._db.prepare(sql)
         bound = stmt.bind(*params) if params else stmt
         outcome = await bound.all()
-        results = outcome["results"] if isinstance(outcome, dict) else outcome.results
-        return list(results)
+        return list(outcome["results"])
 
     async def _run(self, sql: str, *params: Any) -> None:
         stmt = self._db.prepare(sql)
@@ -52,8 +53,7 @@ class D1Store:
         rows = await self._all("SELECT body FROM models WHERE id = ?", model_id)
         if not rows:
             return None
-        raw = rows[0]["body"] if isinstance(rows[0], dict) else rows[0][0]
-        parsed: dict[str, Any] = json.loads(raw)
+        parsed: dict[str, Any] = json.loads(rows[0]["body"])
         return parsed
 
     async def save_simulation(
@@ -78,24 +78,11 @@ class D1Store:
         if not rows:
             return None
         row = rows[0]
-        if isinstance(row, dict):
-            scenario = json.loads(row["scenario"])
-            report = json.loads(row["report"])
-            return {
-                "id": sim_id,
-                "model_id": row["model_id"],
-                "scenario": scenario,
-                "seed": row["seed"],
-                "status": row["status"],
-                "report": report,
-            }
-        scenario = json.loads(row[1])
-        report = json.loads(row[4])
         return {
             "id": sim_id,
-            "model_id": row[0],
-            "scenario": scenario,
-            "seed": row[2],
-            "status": row[3],
-            "report": report,
+            "model_id": row["model_id"],
+            "scenario": json.loads(row["scenario"]),
+            "seed": row["seed"],
+            "status": row["status"],
+            "report": json.loads(row["report"]),
         }
