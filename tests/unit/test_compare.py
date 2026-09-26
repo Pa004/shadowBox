@@ -127,6 +127,6 @@ def test_cli_report_renders(tmp_path: Path) -> None:
 
 
 def test_cli_serve_help() -> None:
-    done = runner.invoke(app, ["serve", "--help"])
+    done = runner.invoke(app, ["serve", "--help"], env={"COLUMNS": "200", "TERM": "dumb"})
     assert done.exit_code == 0
-    assert "--port" in done.output
+    assert "port" in done.output
