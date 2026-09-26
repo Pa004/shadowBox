@@ -1,3 +1,3 @@
-"""ShadowBox M1: deterministic engine plus metrics and reports (headless)."""
+"""ShadowBox: deterministic engine plus metrics, reports, and API (headless)."""
 
-__all__ = ["dsl", "engine", "errors", "metrics", "model", "report"]
+__all__ = ["cards", "dsl", "engine", "errors", "metrics", "model", "report"]

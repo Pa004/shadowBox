@@ -2,14 +2,16 @@
 
 Executable architectural model for safe what-if experimentation. Model the system. Experiment safely.
 
-> M0 scope: contracts + `validate` only (headless). The simulation engine lands in M1. Simulation output is always labeled with assumptions, confidence, and seed — never presented as production measurement.
+> Scope: headless CLI (validate, simulate, compare, report, import, init, serve) plus local API, static demo, and React Studio. Simulation output is always labeled with assumptions, confidence, and seed — never presented as production measurement.
 
 ## Requirements
 
 - Python `>=3.13` (pinned via `.python-version`)
-- `uv` for env and runs (no Docker needed for M0)
+- `uv` for env and runs (no Docker needed)
 
 ## Install
+
+With a clone (development):
 
 ```powershell
 uv python pin 3.13
@@ -17,21 +19,28 @@ uv venv
 uv sync --group dev
 ```
 
+Without a clone (use only):
+
+```powershell
+uvx --from "shadowbox @ git+https://github.com/Pa004/shadowBox.git@v0.2.0" shadowbox init --out demo
+```
+
 ## Run in development
 
 ```powershell
-uv run shadowbox import --from examples/checkout/docker-compose.yaml --out model.yaml
-uv run shadowbox validate examples/checkout/model.yaml --scenario examples/checkout/scenarios/db-failure.yaml
-uv run shadowbox simulate examples/checkout/model.yaml --scenario examples/checkout/scenarios/db-failure.yaml --seed 42 --out report.json
+uv run shadowbox init --out demo
+uv run shadowbox import --from demo/docker-compose.yaml --out demo/model2.yaml
+uv run shadowbox validate demo/model.yaml --scenario demo/scenarios/db-failure.yaml
+uv run shadowbox simulate demo/model.yaml --scenario demo/scenarios/db-failure.yaml --seed 42 --out report.json
 uv run shadowbox report report.json --format text
 uv run shadowbox compare --a base.json --b report.json
 ```
 
-Exit codes: `0` valid/pass, `2` scenario regression (compare), `3` invalid model/scenario/report (prints `E_*` code).
+Exit codes: `0` valid/pass, `2` scenario regression (compare), `3` invalid input or existing files without `--force` (prints `E_*` code).
 
 Import notes: every performance field is an estimated default (see warnings). Calibrate before trusting output.
 
-Chaos cards in `scenarios/` run against the checkout model: `db-down`, `cache-poison`, `latency-500ms`, `traffic-10x`, `zone-loss`, `slow-dependency`, `queue-overflow`.
+Chaos cards ship in the package (`init` writes them to `cards/`): `db-down`, `cache-poison`, `latency-500ms`, `traffic-10x`, `zone-loss`, `slow-dependency`, `queue-overflow`.
 
 ## API server (local)
 
@@ -74,15 +83,18 @@ Run any scenario vs baseline, inspect p99/error verdict, scrub the failure casca
 
 ## Environment variables
 
-None required for M0. Server mode (M4) will document `D1_*` bindings in this section.
+None required. Server mode reads no env vars yet; Cloudflare D1 bindings arrive with the production Worker swap.
 
 ## Project structure
 
 ```text
-src/shadowbox/   # model, dsl, cli, errors, engine, metrics, report
-schemas/         # model-v1.json, scenario-v1.json
-examples/        # checkout fixture (api+cache+db) + broken fixtures
-tests/           # unit, deterministic (golden seed 42), property (Hypothesis)
+src/shadowbox/         # model, dsl, cli, errors, engine, metrics, report, cards, api, store
+src/shadowbox/data/    # canonical example + chaos cards (shipped in the wheel)
+schemas/               # model-v1.json, scenario-v1.json
+tests/                 # unit, deterministic (golden seed 42), property, integration
+tests/fixtures/        # broken models (E_CYCLE, E_REF)
+apps/web/              # static demo with replay (no build)
+apps/studio/           # React + Cytoscape UI (Vite, strict TS)
 ```
 
 ## Run tests
@@ -100,4 +112,4 @@ Benchmarks (reference: i7-1255U, 16GB, Python 3.13; SLO: 50k events < 2s):
 
 ## Deploy notes
 
-M0 has no deploy. Demo deploy (M4): Cloudflare Pages (web) + Python Worker (FastAPI via `workers.asgi`) + D1. No paid service, no credit card at any tier. See `ShadowBox.md` (local spec, git-ignored) for the full contract.
+Local-first: CLI and `serve` need nothing but Python. Demo deploy: Cloudflare Pages (web) + Python Worker (FastAPI via `workers.asgi`) + D1 — see `Deploy (Cloudflare...)` above. No paid service, no credit card at any tier. See `ShadowBox.md` (local spec, git-ignored) for the full contract.

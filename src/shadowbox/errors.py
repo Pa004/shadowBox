@@ -32,3 +32,7 @@ class UnsafeYamlError(ShadowBoxError):
 
 class SeedMismatchWarning(ShadowBoxError):
     code = "E_SEED_MISMATCH"
+
+
+class ExistsError(ShadowBoxError):
+    code = "E_EXISTS"
