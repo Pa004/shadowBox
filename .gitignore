@@ -16,6 +16,10 @@ __pycache__/
 *.db
 report.json
 model.yaml
+!src/shadowbox/data/example/model.yaml
+
+# Build output (never commit)
+dist/
 
 # Node (never commit)
 node_modules/
