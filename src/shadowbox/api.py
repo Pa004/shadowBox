@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, ValidationError
 
 from shadowbox import engine as engine_mod
@@ -39,9 +39,11 @@ def create_app(store: AsyncStore | None = None) -> FastAPI:
     async def get_store(request: Request) -> AsyncStore:
         if store is not None:
             return store
-        env = request.scope.get("env", {})
-        assert isinstance(env, dict) and "DB" in env, "D1 binding missing (Worker only)"
-        return D1Store(env["DB"])
+        # env is a JS proxy on the Worker (not a dict): attribute access only.
+        env = request.scope.get("env")
+        db = getattr(env, "DB", None) if env is not None else None
+        assert db is not None, "D1 binding missing (Worker only)"
+        return D1Store(db)
 
     @app.post("/api/v1/models", status_code=201)
     async def create_model(
@@ -145,6 +147,27 @@ def create_app(store: AsyncStore | None = None) -> FastAPI:
         report = found["report"]
         assert isinstance(report, dict)
         return report
+
+    @app.get("/{path:path}", include_in_schema=False)
+    async def frontend(path: str, request: Request) -> Any:
+        """Serve Static Assets on the Worker; plain 404 anywhere else."""
+        try:
+            env = request.scope.get("env")
+            fetcher = getattr(getattr(env, "ASSETS", None), "fetch", None)
+            if fetcher is None:
+                raise HTTPException(status_code=404, detail="not found")
+            target = path if path else "index.html"
+            resp = await fetcher(f"https://assets.local/{target}")
+            if int(resp.status) == 404:
+                raise HTTPException(status_code=404, detail="not found")
+            buf = await resp.arrayBuffer()
+            body = bytes(buf.to_py())
+            content_type = str(resp.headers.get("content-type") or "application/octet-stream")
+        except HTTPException:
+            raise
+        except Exception as exc:
+            raise HTTPException(status_code=404, detail=f"asset unavailable: {exc}") from exc
+        return Response(content=body, status_code=int(resp.status), media_type=content_type)
 
     return app
 

@@ -79,6 +79,7 @@ def test_unknown_ids_404(tmp_path: Path) -> None:
     assert client.get("/api/v1/models/nope").status_code == 404
     assert client.get("/api/v1/simulations/nope").status_code == 404
     assert client.get("/api/v1/simulations/nope/events").status_code == 404
+    assert client.get("/no-such-page").status_code == 404  # no ASSETS binding locally
 
 
 def test_event_limit_guarded(tmp_path: Path) -> None:
