@@ -160,9 +160,10 @@ def simulate(model: SystemModel, scenario: Scenario, seed: int) -> SimulationRes
     if total > MAX_REQUESTS:
         raise TooLargeError(f"{total} requests exceed cap of {MAX_REQUESTS}")
     path = build_path(model)
-    faults_by_target: dict[str, list[Fault]] = {}
+    windows: dict[str, list[tuple[int, int, Fault]]] = {}
     for fault in scenario.faults:
-        faults_by_target.setdefault(fault.target, []).append(fault)
+        start, end = _window_ms(fault)
+        windows.setdefault(fault.target, []).append((start, end, fault))
     runtimes = {c.id: _Runtime() for c in model.components}
     rng = random.Random(seed)
     interval_ms = MS_PER_S / scenario.workload.rate_rps
@@ -179,11 +180,8 @@ def simulate(model: SystemModel, scenario: Scenario, seed: int) -> SimulationRes
         events += 2  # request-created, request-completed
         outcome = _RequestOutcome(True, 0, None, False, arrival_ms)
         for depth, comp in enumerate(path):
-            faults = [
-                f
-                for f in faults_by_target.get(comp.id, [])
-                if _window_ms(f)[0] <= cursor_ms < _window_ms(f)[1]
-            ]
+            active = windows.get(comp.id, [])
+            faults = [f for (start, end, f) in active if start <= cursor_ms < end]
             ok, end_ms, timed_out, delta = _process(comp, cursor_ms, runtimes[comp.id], faults, rng)
             events += delta
             if not ok:

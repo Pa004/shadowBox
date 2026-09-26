@@ -40,7 +40,7 @@ uv run uvicorn shadowbox.api:app --port 8000
 # or: uv run shadowbox serve --port 8000
 ```
 
-Endpoints: `POST /api/v1/models`, `GET /api/v1/models/{id}`, `POST /api/v1/simulations?model_id=...`, `GET /api/v1/simulations/{id}[/events|/metrics|/report]`. Events are paginated (`limit` 1..1000, `cursor` offset over the stored 500-request sample). State lives in `shadowbox.db` (git-ignored, created on first use).
+Endpoints: `POST /api/v1/models`, `GET /api/v1/models/{id}`, `POST /api/v1/simulations?model_id=...`, `GET /api/v1/simulations/{id}[/events|/metrics|/report]`. Events are paginated (`limit` 1..1000, `cursor` offset over the stored 500-request sample). State lives in `shadowbox.db` (git-ignored, created on first use). The API has no authentication: bind to localhost (`serve` defaults to `127.0.0.1`) and never expose it directly to the internet.
 
 ## Deploy (Cloudflare free tier, no card)
 
