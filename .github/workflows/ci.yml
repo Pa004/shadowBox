@@ -16,11 +16,16 @@ jobs:
       - run: uv run ruff check .
       - run: uv run mypy src
       - run: uv run pytest
-      - run: uv run shadowbox validate examples/checkout/model.yaml --scenario examples/checkout/scenarios/db-failure.yaml
-      - run: uv run shadowbox import --from examples/checkout/docker-compose.yaml --out /tmp/imported.yaml
-      - run: uv run shadowbox validate /tmp/imported.yaml --scenario scenarios/db-down.yaml
-      - run: uv run shadowbox simulate examples/checkout/model.yaml --scenario scenarios/queue-overflow.yaml --seed 42 --out /tmp/report.json
-      - run: uv run shadowbox simulate examples/checkout/model.yaml --scenario examples/checkout/scenarios/db-failure.yaml --seed 42 --out /tmp/base.json
+      - run: uv run shadowbox init --out /tmp/sb
+      - run: uv run shadowbox validate /tmp/sb/model.yaml --scenario /tmp/sb/scenarios/db-failure.yaml
+      - run: uv run shadowbox import --from /tmp/sb/docker-compose.yaml --out /tmp/imported.yaml
+      - run: uv run shadowbox validate /tmp/imported.yaml --scenario /tmp/sb/cards/db-down.yaml
+      - run: |
+          for card in /tmp/sb/cards/*.yaml; do
+            uv run shadowbox validate /tmp/sb/model.yaml --scenario "$card"
+          done
+      - run: uv run shadowbox simulate /tmp/sb/model.yaml --scenario /tmp/sb/cards/queue-overflow.yaml --seed 42 --out /tmp/report.json
+      - run: uv run shadowbox simulate /tmp/sb/model.yaml --scenario /tmp/sb/scenarios/db-failure.yaml --seed 42 --out /tmp/base.json
       - run: uv run shadowbox compare --a /tmp/base.json --b /tmp/base.json
       - run: uv run shadowbox report /tmp/report.json --format text
 

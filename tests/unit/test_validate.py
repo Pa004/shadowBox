@@ -8,12 +8,13 @@ from shadowbox.dsl import load_model, load_scenario
 from shadowbox.errors import CycleError, RefError, SchemaError, UnsafeYamlError
 
 ROOT = Path(__file__).resolve().parents[2]
-CHECKOUT = ROOT / "examples" / "checkout"
+EXAMPLE = ROOT / "src" / "shadowbox" / "data" / "example"
+FIXTURES = ROOT / "tests" / "fixtures"
 
 
 def test_valid_model_and_scenario() -> None:
-    model = load_model(CHECKOUT / "model.yaml")
-    scenario = load_scenario(CHECKOUT / "scenarios" / "db-failure.yaml", model)
+    model = load_model(EXAMPLE / "model.yaml")
+    scenario = load_scenario(EXAMPLE / "scenarios" / "db-failure.yaml", model)
     assert [c.id for c in model.components] == ["api", "cache", "database"]
     assert scenario.name == "database-failure"
     assert scenario.workload.rate_rps == 100
@@ -21,18 +22,18 @@ def test_valid_model_and_scenario() -> None:
 
 def test_cycle_rejected() -> None:
     with pytest.raises(CycleError) as exc:
-        load_model(CHECKOUT / "cycle.yaml")
+        load_model(FIXTURES / "cycle.yaml")
     assert exc.value.code == "E_CYCLE"
 
 
 def test_unknown_ref_rejected() -> None:
     with pytest.raises(RefError) as exc:
-        load_model(CHECKOUT / "bad-ref.yaml")
+        load_model(FIXTURES / "bad-ref.yaml")
     assert exc.value.code == "E_REF"
 
 
 def test_unknown_fault_target_rejected(tmp_path: Path) -> None:
-    model = load_model(CHECKOUT / "model.yaml")
+    model = load_model(EXAMPLE / "model.yaml")
     bad = tmp_path / "scenario.yaml"
     bad.write_text(
         "name: bad\nduration_s: 10\nworkload:\n  rate_rps: 10\n"

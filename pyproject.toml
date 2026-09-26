@@ -55,3 +55,13 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/shadowbox"]
+
+# model.yaml matches .gitignore (init output guard); force it back into artifacts.
+[tool.hatch.build.targets.wheel.force-include]
+"src/shadowbox/data/example/model.yaml" = "shadowbox/data/example/model.yaml"
+
+[tool.hatch.build.targets.sdist]
+packages = ["src/shadowbox"]
+
+[tool.hatch.build.targets.sdist.force-include]
+"src/shadowbox/data/example/model.yaml" = "shadowbox/data/example/model.yaml"

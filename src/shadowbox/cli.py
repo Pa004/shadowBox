@@ -11,6 +11,7 @@ import yaml
 from rich.console import Console
 
 from shadowbox import engine as engine_mod
+from shadowbox.cards import list_cards, write_tree
 from shadowbox.compare import (
     DEFAULT_THRESHOLDS,
     compare_reports,
@@ -199,6 +200,22 @@ def serve(
 
     api_mod.store = Store(db)
     uvicorn.run(api_mod.app, host=host, port=port)
+
+
+@app.command(name="init")
+def init_project(
+    out: Path = typer.Option(Path("."), "--out", help="Target directory"),
+    force: bool = typer.Option(False, "--force", help="Overwrite existing files"),
+    cards: bool = typer.Option(True, "--cards/--no-cards", help="Include chaos cards"),
+) -> None:
+    """Scaffold example model plus chaos cards (works without a repo clone)."""
+    try:
+        written = write_tree(out, force, include_cards=cards)
+    except ShadowBoxError as exc:
+        console.print(f"[red]{exc.code}[/red]: {exc}")
+        raise typer.Exit(code=3) from exc
+    console.print(f"[green]initialized[/green]: {len(written)} files -> {out}")
+    console.print(f"cards available: {', '.join(n.replace('.yaml', '') for n in list_cards())}")
 
 
 if __name__ == "__main__":

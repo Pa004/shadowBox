@@ -10,11 +10,11 @@ from shadowbox.errors import SchemaError, UnsafeYamlError
 from shadowbox.importers.compose import import_compose
 
 ROOT = Path(__file__).resolve().parents[2]
-CHECKOUT = ROOT / "examples" / "checkout"
+EXAMPLE = ROOT / "src" / "shadowbox" / "data" / "example"
 
 
 def test_compose_imports_three_components() -> None:
-    model, warnings = import_compose(CHECKOUT / "docker-compose.yaml")
+    model, warnings = import_compose(EXAMPLE / "docker-compose.yaml")
     assert sorted(c.id for c in model.components) == ["api", "cache", "database"]
     assert {c.type for c in model.components} == {"service", "cache", "database"}
     edges = {(c.from_, c.to) for c in model.connections}
@@ -25,7 +25,7 @@ def test_compose_imports_three_components() -> None:
 
 
 def test_imported_model_passes_validation(tmp_path: Path) -> None:
-    model, _ = import_compose(CHECKOUT / "docker-compose.yaml")
+    model, _ = import_compose(EXAMPLE / "docker-compose.yaml")
     out = tmp_path / "model.yaml"
     out.write_text(yaml.safe_dump(model.model_dump(mode="json", by_alias=True)), encoding="utf-8")
     reloaded = load_model(out)

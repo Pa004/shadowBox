@@ -8,7 +8,7 @@ from shadowbox.metrics import summarize
 from shadowbox.report import build_report
 
 ROOT = Path(__file__).resolve().parents[2]
-CHECKOUT = ROOT / "examples" / "checkout"
+EXAMPLE = ROOT / "src" / "shadowbox" / "data" / "example"
 
 # Pinned on first green M1 run; any engine change must justify a hash update here.
 GOLDEN_HASH = "ffbf351c71aa9b403191e73df8fd1bcf46f6f72e6946bf6c2044e52c2bc7a080"
@@ -17,8 +17,8 @@ GOLDEN_FAILED = 1000
 
 
 def _run(seed: int = 42) -> dict[str, object]:
-    model = load_model(CHECKOUT / "model.yaml")
-    scenario = load_scenario(CHECKOUT / "scenarios" / "db-failure.yaml", model)
+    model = load_model(EXAMPLE / "model.yaml")
+    scenario = load_scenario(EXAMPLE / "scenarios" / "db-failure.yaml", model)
     result = simulate(model, scenario, seed)
     metrics = summarize(model, result, scenario.duration_s)
     return build_report(

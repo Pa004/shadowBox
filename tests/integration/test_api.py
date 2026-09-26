@@ -9,6 +9,7 @@ from shadowbox import api as api_mod
 from shadowbox.store import Store
 
 ROOT = Path(__file__).resolve().parents[2]
+EXAMPLE = ROOT / "src" / "shadowbox" / "data" / "example"
 
 
 def _client(tmp_path: Path) -> TestClient:
@@ -17,13 +18,13 @@ def _client(tmp_path: Path) -> TestClient:
 
 
 def _model_body() -> dict[str, object]:
-    data = yaml.safe_load((ROOT / "examples" / "checkout" / "model.yaml").read_text())
+    data = yaml.safe_load((EXAMPLE / "model.yaml").read_text())
     assert isinstance(data, dict)
     return data
 
 
 def _scenario_body() -> dict[str, object]:
-    path = ROOT / "examples" / "checkout" / "scenarios" / "db-failure.yaml"
+    path = EXAMPLE / "scenarios" / "db-failure.yaml"
     data = yaml.safe_load(path.read_text())
     assert isinstance(data, dict)
     return data
