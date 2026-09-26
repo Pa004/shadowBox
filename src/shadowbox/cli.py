@@ -1,6 +1,8 @@
 """Typer CLI: validate (M0) and simulate (M1); compare/report land in M3."""
 
 import json
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as pkg_version
 from pathlib import Path
 
 import typer
@@ -46,7 +48,11 @@ def validate(
 @app.command()
 def version() -> None:
     """Print the package version (also keeps `validate` as a named subcommand)."""
-    console.print("shadowbox 0.1.0 (M2)")
+    try:
+        number = pkg_version("shadowbox")
+    except PackageNotFoundError:
+        number = "0.0.0+local"
+    console.print(f"shadowbox {number}")
 
 
 @app.command(name="import")
