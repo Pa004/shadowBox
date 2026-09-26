@@ -28,6 +28,8 @@ jobs:
       - run: uv run shadowbox simulate /tmp/sb/model.yaml --scenario /tmp/sb/scenarios/db-failure.yaml --seed 42 --out /tmp/base.json
       - run: uv run shadowbox compare --a /tmp/base.json --b /tmp/base.json
       - run: uv run shadowbox report /tmp/report.json --format text
+      - run: uv build
+      - run: uv run python -c "import zipfile,glob; w=sorted(glob.glob('dist/*.whl'))[-1]; n=zipfile.ZipFile(w).namelist(); assert sum(1 for x in n if '/data/' in x) == 11, n; assert any(x.endswith('example/model.yaml') for x in n)"
 
   studio:
     runs-on: ubuntu-latest
