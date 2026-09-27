@@ -92,3 +92,16 @@ def test_event_limit_guarded(tmp_path: Path) -> None:
     ).json()["id"]
     over = client.get(f"/api/v1/simulations/{sim_id}/events", params={"limit": 5000})
     assert over.status_code == 422
+
+
+def test_browser_preflight_allowed(tmp_path: Path) -> None:
+    client = _client(tmp_path)
+    preflight = client.options(
+        "/api/v1/models",
+        headers={
+            "Origin": "https://shadowbox-avg.pages.dev",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+    assert preflight.status_code == 200
+    assert preflight.headers["access-control-allow-origin"] == "*"

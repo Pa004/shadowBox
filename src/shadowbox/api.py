@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, ValidationError
 
@@ -35,6 +36,14 @@ def _as_422(code: str, message: str) -> JSONResponse:
 def create_app(store: AsyncStore | None = None) -> FastAPI:
     """Build the app; without a store, each request uses the D1 binding (Worker)."""
     app = FastAPI(title="ShadowBox", version="0.3.0")
+    # Public demo API without credentials: browsers calling from Pages or
+    # localhost need permissive CORS; nothing sensitive crosses the wire.
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     async def get_store(request: Request) -> AsyncStore:
         if store is not None:
