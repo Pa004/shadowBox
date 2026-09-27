@@ -89,6 +89,8 @@ npm run dev     # /api proxies to 127.0.0.1:8000
 
 Run any scenario vs baseline, inspect p99/error verdict, scrub the failure cascade on the Cytoscape graph.
 
+Live: `https://shadowbox-avg.pages.dev` (paste the Worker URL as API base).
+
 ## Environment variables
 
 None required. Server mode reads no env vars yet; Cloudflare D1 bindings arrive with the production Worker swap.
