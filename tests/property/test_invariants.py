@@ -91,8 +91,10 @@ def test_outage_hurts(seed: int) -> None:
 def test_sample_times_coherent(seed: int) -> None:
     result = simulate(_tiny_model(), _scenario("ok"), seed)
     assert 0 < len(result.sample) <= 500
-    for i, entry in enumerate(result.sample):
-        assert entry.correlation_id == f"req-{i:06d}"
+    seen = set()
+    for entry in result.sample:
+        assert entry.correlation_id not in seen
+        seen.add(entry.correlation_id)
         assert entry.finish_ms >= entry.arrival_ms
         if entry.ok:
             assert entry.latency_ms == entry.finish_ms - entry.arrival_ms

@@ -167,6 +167,9 @@ def simulate(model: SystemModel, scenario: Scenario, seed: int) -> SimulationRes
     runtimes = {c.id: _Runtime() for c in model.components}
     rng = random.Random(seed)
     interval_ms = MS_PER_S / scenario.workload.rate_rps
+    # Stratified sample across the whole run (every stride-th request), so the
+    # replay sees faults anywhere in the window instead of only the start.
+    stride = max(1, (total + MAX_SAMPLE - 1) // MAX_SAMPLE)
     latencies: list[int] = []
     sample: list[RequestSample] = []
     succeeded = 0
@@ -195,7 +198,7 @@ def simulate(model: SystemModel, scenario: Scenario, seed: int) -> SimulationRes
             succeeded += 1
             latencies.append(cursor_ms - arrival_ms)
             outcome = _RequestOutcome(True, cursor_ms - arrival_ms, None, False, cursor_ms)
-        if len(sample) < MAX_SAMPLE:
+        if i % stride == 0 and len(sample) < MAX_SAMPLE:
             sample.append(
                 RequestSample(
                     correlation_id=f"req-{i:06d}",
