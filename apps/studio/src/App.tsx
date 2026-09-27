@@ -4,8 +4,10 @@ import { MODEL, SCENARIOS } from "./fixtures";
 import { activeFaults, failuresUpTo, renderGraph } from "./graph";
 import type cytoscape from "cytoscape";
 
+export const DEFAULT_API_BASE = "https://shadowbox-api.pablodo004.workers.dev";
+
 export default function App() {
-  const [base, setBase] = useState("http://127.0.0.1:8000");
+  const [base, setBase] = useState(DEFAULT_API_BASE);
   const [scenarioName, setScenarioName] = useState("db-down");
   const [baseline, setBaseline] = useState<Report | null>(null);
   const [report, setReport] = useState<Report | null>(null);
@@ -53,6 +55,7 @@ export default function App() {
       <h1>ShadowBox Studio</h1>
       <p>What-if simulation. Results are illustrative, never production measurements.</p>
       <label>API base <input value={base} onChange={(e) => setBase(e.target.value)} size={30} /></label>{" "}
+      <button onClick={() => setBase("http://127.0.0.1:8000")}>use local</button>{" "}
       <label>Scenario{" "}
         <select value={scenarioName} onChange={(e) => setScenarioName(e.target.value)}>
           {SCENARIOS.map((s) => <option key={s.name} value={s.name}>{s.name}</option>)}
