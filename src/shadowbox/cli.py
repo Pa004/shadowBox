@@ -21,6 +21,7 @@ from shadowbox.compare import (
 from shadowbox.dsl import load_model, load_scenario
 from shadowbox.errors import SchemaError, ShadowBoxError
 from shadowbox.importers.compose import import_compose
+from shadowbox.importers.kubernetes import import_kubernetes
 from shadowbox.metrics import summarize
 from shadowbox.report import build_report
 
@@ -55,14 +56,33 @@ def version() -> None:
     console.print(f"shadowbox {number}")
 
 
+def _detect_format(path: Path) -> str:
+    """Compose has `services:`; manifests carry `kind:`/`apiVersion:` (multi-doc)."""
+    try:
+        text = path.read_text(encoding="utf-8")
+        first = next((d for d in yaml.safe_load_all(text) if isinstance(d, dict)), None)
+    except (OSError, yaml.YAMLError) as exc:
+        raise SchemaError(f"cannot inspect {path}: {exc}") from exc
+    if first is not None and isinstance(first.get("services"), dict):
+        return "compose"
+    return "k8s"
+
+
 @app.command(name="import")
 def import_model(
-    from_path: Path = typer.Option(..., "--from", help="Path to docker-compose.yaml"),
+    from_path: Path = typer.Option(..., "--from", help="Path to docker-compose.yaml or manifests"),
     out: Path = typer.Option(Path("model.yaml"), "--out", help="Imported model output path"),
+    format: str = typer.Option("auto", "--format", help="auto, compose, or k8s"),
 ) -> None:
-    """Import a compose file into a validated model (all fields estimated)."""
+    """Import infrastructure files into a validated model (all fields estimated)."""
     try:
-        model, warnings = import_compose(from_path)
+        kind = _detect_format(from_path) if format == "auto" else format
+        if kind == "compose":
+            model, warnings = import_compose(from_path)
+        elif kind == "k8s":
+            model, warnings = import_kubernetes(from_path)
+        else:
+            raise SchemaError(f"unknown format {format!r}; expected auto, compose, or k8s")
     except ShadowBoxError as exc:
         console.print(f"[red]{exc.code}[/red]: {exc}")
         raise typer.Exit(code=3) from exc

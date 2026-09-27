@@ -40,6 +40,11 @@ _DEFAULTS: dict[str, dict[str, Any]] = {
 }
 
 
+def skeleton(name: str, kind: str) -> dict[str, Any]:
+    """Component dict with estimated defaults (shared by importers)."""
+    return {"id": name, "type": kind, **dict(_DEFAULTS[kind])}
+
+
 def _infer_type(service: str, image: str) -> str:
     lowered = image.lower()
     if any(hint in lowered for hint in _DB_HINTS):
@@ -89,8 +94,7 @@ def import_compose(path: Path) -> tuple[SystemModel, list[str]]:
         spec = services[name] if isinstance(services[name], dict) else {}
         image = str(spec.get("image", ""))
         kind = _infer_type(name, image)
-        fields = dict(_DEFAULTS[kind])
-        components.append({"id": name, "type": kind, **fields})
+        components.append(skeleton(name, kind))
         shown_image = image if image else "(none)"
         warnings.append(f"{name!r}: {kind} inferred from {shown_image}; fields estimated")
         for dep in sorted(set(_depends_on(spec.get("depends_on")) + _links(spec.get("links")))):

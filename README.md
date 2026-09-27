@@ -42,7 +42,7 @@ uv run shadowbox compare --a base.json --b report.json
 
 Exit codes: `0` valid/pass, `2` scenario regression (compare), `3` invalid input or existing files without `--force` (prints `E_*` code).
 
-Import notes: every performance field is an estimated default (see warnings). Calibrate before trusting output.
+Import notes: every performance field is an estimated default (see warnings). Calibrate before trusting output. Sources: `docker-compose.yaml` (services, `depends_on`/`links`) and Kubernetes manifests (workloads; edges only from `shadowbox.io/depends-on: "a, b"` annotation).
 
 Chaos cards ship in the package (`init` writes them to `cards/`): `db-down`, `cache-poison`, `latency-500ms`, `traffic-10x`, `zone-loss`, `slow-dependency`, `queue-overflow`.
 
