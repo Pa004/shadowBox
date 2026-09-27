@@ -27,7 +27,7 @@ export function renderGraph(
           color: "#fff",
           "text-valign": "center",
           "text-halign": "center",
-          "font-size": 10,
+          "font-size": "10px",
           "text-wrap": "wrap",
           "text-max-width": 78,
           width: 88,
