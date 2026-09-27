@@ -1,5 +1,9 @@
 # ShadowBox
 
+[![CI](https://github.com/Pa004/shadowBox/actions/workflows/ci.yml/badge.svg)](https://github.com/Pa004/shadowBox/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/shadowbox)](https://pypi.org/project/shadowbox/)
+[![Python](https://img.shields.io/badge/python-3.13-blue)](https://www.python.org/downloads/release/python-3130/)
+
 Executable architectural model for safe what-if experimentation. Model the system. Experiment safely.
 
 > Scope: headless CLI (validate, simulate, compare, report, import, init, serve) plus local API, static demo, and React Studio. Simulation output is always labeled with assumptions, confidence, and seed — never presented as production measurement.

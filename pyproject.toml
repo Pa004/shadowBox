@@ -1,10 +1,22 @@
 [project]
 name = "shadowbox"
-version = "0.3.1"
-description = "Executable architectural model for safe what-if experimentation (M0: contracts + validate)"
+version = "0.3.2"
+description = "Executable architectural model for safe what-if experimentation"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.13"
+keywords = ["simulation", "chaos-engineering", "architecture", "reliability", "sre"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Education",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Testing",
+  "Topic :: System :: Systems Administration",
+  "Typing :: Typed",
+]
 dependencies = [
   "pydantic>=2.0",
   "typer>=0.9",
@@ -17,6 +29,12 @@ dependencies = [
 
 [project.scripts]
 shadowbox = "shadowbox.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/Pa004/shadowBox"
+Repository = "https://github.com/Pa004/shadowBox"
+Issues = "https://github.com/Pa004/shadowBox/issues"
+Changelog = "https://github.com/Pa004/shadowBox/releases"
 
 [dependency-groups]
 dev = [
