@@ -1,6 +1,6 @@
 [project]
 name = "shadowbox"
-version = "0.3.0"
+version = "0.3.1"
 description = "Executable architectural model for safe what-if experimentation (M0: contracts + validate)"
 readme = "README.md"
 license = { text = "Apache-2.0" }
