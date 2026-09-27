@@ -66,7 +66,9 @@ Scaffold ready in `wrangler.jsonc` + `schema.sql` + `apps/api/worker.py` + `apps
 !pywrangler deploy
 ```
 
-Production note: the Worker (`apps/api/worker.py`) serves the same FastAPI app built by `create_app()` with no store, so each request gets a `D1Store` from the `DB` binding (schema in `schema.sql`). Local runs inject SQLite. `D1Store` is contract-tested against a fake binding; production verification needs a real account (M4b-full). The static demo deploys to Pages as-is and talks to any API base URL.
+Production note: the Worker (`apps/api/worker.py`) serves the same FastAPI app built by `create_app()` with no store, so each request gets a `D1Store` from the `DB` binding (schema in `schema.sql`). Local runs inject SQLite. `D1Store` is contract-tested against a fake binding; production verification needs a real account (M4b-full).
+
+Live demo: `https://shadowbox-api.pablodo004.workers.dev` (static demo at `/`, API under `/api/v1/`). The static demo deploys to Pages as-is and talks to any API base URL.
 
 Open `apps/web/index.html` after `Run` to scrub virtual time: the SVG graph colors failed components red and shows active faults per second (first 500 sampled requests).
 
