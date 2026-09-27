@@ -1,3 +1,3 @@
-"""Model importers: external formats convert to ShadowBox models (M2)."""
+"""Model importers: external formats convert to ShadowBox models."""
 
-__all__ = ["compose"]
+__all__ = ["compose", "kubernetes"]
