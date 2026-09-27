@@ -160,8 +160,8 @@ def create_app(store: AsyncStore | None = None) -> FastAPI:
             resp = await fetcher(f"https://assets.local/{target}")
             if int(resp.status) == 404:
                 raise HTTPException(status_code=404, detail="not found")
-            buf = await resp.arrayBuffer()
-            body = bytes(buf.to_py())
+            # ASSETS.fetch yields a pyodide FetchResponse: buffer()/bytes()/text().
+            body = bytes(await resp.bytes())
             content_type = str(resp.headers.get("content-type") or "application/octet-stream")
         except HTTPException:
             raise
