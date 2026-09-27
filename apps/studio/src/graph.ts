@@ -29,7 +29,7 @@ export function renderGraph(
           "text-halign": "center",
           "font-size": "10px",
           "text-wrap": "wrap",
-          "text-max-width": 78,
+          "text-max-width": "78px",
           width: 88,
           height: 88
         }
