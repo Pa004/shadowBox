@@ -20,7 +20,20 @@ export function renderGraph(
     container,
     elements: [...nodes, ...edges],
     style: [
-      { selector: "node", style: { label: "data(label)", color: "#fff", "text-valign": "center", "text-halign": "center", "font-size": 11 } },
+      {
+        selector: "node",
+        style: {
+          label: "data(label)",
+          color: "#fff",
+          "text-valign": "center",
+          "text-halign": "center",
+          "font-size": 10,
+          "text-wrap": "wrap",
+          "text-max-width": 78,
+          width: 88,
+          height: 88
+        }
+      },
       { selector: 'node[status="ok"]', style: { "background-color": "#2e7d32" } },
       { selector: 'node[status="failing"]', style: { "background-color": "#c62828" } },
       { selector: 'node[status="degraded"]', style: { "background-color": "#ef6c00" } },
