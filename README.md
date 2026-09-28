@@ -1,125 +1,96 @@
-# ShadowBox
+# ShadowBox — model the system. Experiment safely.
 
 [![CI](https://github.com/Pa004/shadowBox/actions/workflows/ci.yml/badge.svg)](https://github.com/Pa004/shadowBox/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/shadowbox)](https://pypi.org/project/shadowbox/)
 [![Python](https://img.shields.io/badge/python-3.13-blue)](https://www.python.org/downloads/release/python-3130/)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green)](https://github.com/Pa004/shadowBox/blob/master/LICENSE)
 
-Executable architectural model for safe what-if experimentation. Model the system. Experiment safely.
+**What breaks if the database dies for 10 seconds? What if traffic spikes 10×?**
+ShadowBox answers without touching production: describe your architecture, inject the failure, and simulate — deterministically, reproducibly, for free.
 
-> Scope: headless CLI (validate, simulate, compare, report, import, init, serve) plus local API, static demo, and React Studio. Simulation output is always labeled with assumptions, confidence, and seed — never presented as production measurement.
-
-## Requirements
-
-- Python `>=3.13` (pinned via `.python-version`)
-- `uv` for env and runs (no Docker needed)
-
-## Install
-
-With a clone (development):
+| | |
+|---|---|
+| 🎛️ **Live Studio** | https://shadowbox-avg.pages.dev — dashboards, multi-scenario matrix, guided tour |
+| ⚡ **Live API + demo** | https://shadowbox-api.pablodo004.workers.dev — try it right now, no install |
+| 📦 **Install** | `pipx install shadowbox` — runs anywhere, no clone needed |
+| 📄 **Releases** | https://github.com/Pa004/shadowBox/releases |
 
 ```powershell
-uv python pin 3.13
-uv venv
-uv sync --group dev
+uvx shadowbox==0.3.2 init --out demo
+uvx shadowbox==0.3.2 simulate demo/model.yaml --scenario demo/cards/db-down.yaml --seed 42
+# done: 5000/6000 ok, error_rate=0.167, p99=34ms, hash=007952565ac2
 ```
 
-Without a clone (use only):
+Same model + scenario + seed always yields the same metrics hash. Simulation output always carries assumptions, confidence, and seed — **never presented as production measurement**.
 
-```powershell
-uvx --from "shadowbox @ git+https://github.com/Pa004/shadowBox.git@v0.2.0" shadowbox init --out demo
+## Why it exists
+
+Diagrams don't execute. Load tests need real environments. Chaos tools bill you and break things for real. ShadowBox sits in between: an **executable architectural model** for safe what-if experiments — a flight simulator for backends, a lab bench for SRE students.
+
+```mermaid
+flowchart LR
+    A[Real architecture] --> B[System model]
+    B --> C[Scenario + seed]
+    C --> D[Deterministic engine]
+    D --> E[Metrics + verdict]
 ```
 
-## Run in development
+## Chaos cards (bundled, measured values)
 
-```powershell
-uv run shadowbox init --out demo
-uv run shadowbox import --from demo/docker-compose.yaml --out demo/model2.yaml
-uv run shadowbox validate demo/model.yaml --scenario demo/scenarios/db-failure.yaml
-uv run shadowbox simulate demo/model.yaml --scenario demo/scenarios/db-failure.yaml --seed 42 --out report.json
-uv run shadowbox report report.json --format text
-uv run shadowbox compare --a base.json --b report.json
+| Card | What it does | Measured result (seed 42) |
+|---|---|---|
+| `db-down` | database unavailable 10 s | 1000 failed, error 0.167 → REGRESSION |
+| `cache-poison` | cache unavailable 10 s | 1000 failed, error 0.167 → REGRESSION |
+| `latency-500ms` | +500 ms on database | ~total timeouts (505 ms > 500 ms timeout) |
+| `traffic-10x` | 100 → 1000 rps | absorbed, no errors — headroom proven |
+| `zone-loss` | cache + database down 20 s | 2000 failed, error 0.333 → REGRESSION |
+| `slow-dependency` | cache +100 ms | 0 errors, p99 34 → 134 ms |
+| `queue-overflow` | 3000 rps for 10 s | 25% queue-full drops |
+
+```json
+{
+  "seed": 42,
+  "metrics": { "error_rate": 0.167, "latency_ms": { "p99": 34 } },
+  "metrics_hash": "007952565ac2…",
+  "assumptions": ["sync calls only", "…"],
+  "confidence": "low",
+  "calibration_source": "none"
+}
 ```
 
-Exit codes: `0` valid/pass, `2` scenario regression (compare), `3` invalid input or existing files without `--force` (prints `E_*` code).
+## Use it your way
 
-Import notes: every performance field is an estimated default (see warnings). Calibrate before trusting output. Sources: `docker-compose.yaml` (services, `depends_on`/`links`) and Kubernetes manifests (workloads; edges only from `shadowbox.io/depends-on: "a, b"` annotation).
+- **CLI** — `validate`, `simulate`, `compare` (exit 2 on regression — CI-ready), `report`, `import` (compose/k8s), `init`, `serve`.
+- **API** — FastAPI, 7 endpoints, paginated events, SQLite locally / D1 on Cloudflare.
+- **Studio** — React + Cytoscape dashboards, compare matrix, time-travel replay, guided tutorial.
+- **CI check** — `shadowbox compare --a base.json --b pr.json --threshold p99:+10%,error_rate:+1pp` fails the build on architectural regressions.
 
-Chaos cards ship in the package (`init` writes them to `cards/`): `db-down`, `cache-poison`, `latency-500ms`, `traffic-10x`, `zone-loss`, `slow-dependency`, `queue-overflow`.
+## How it works
 
-## API server (local)
-
-```powershell
-uv run uvicorn shadowbox.api:app --port 8000
-# or: uv run shadowbox serve --port 8000
-```
-
-Endpoints: `POST /api/v1/models`, `GET /api/v1/models/{id}`, `POST /api/v1/simulations?model_id=...`, `GET /api/v1/simulations/{id}[/events|/metrics|/report]`. Events are paginated (`limit` 1..1000, `cursor` offset over the stored 500-request sample). State lives in `shadowbox.db` (git-ignored, created on first use). The API has no authentication: bind to localhost (`serve` defaults to `127.0.0.1`) and never expose it directly to the internet.
-
-## Deploy (Cloudflare free tier, no card)
-
-Scaffold ready in `wrangler.jsonc` + `schema.sql` + `apps/api/worker.py` + `apps/web/` (static demo, no build step). Remaining steps need your Cloudflare account:
-
-```powershell
-!npm install -g wrangler
-!wrangler login
-!wrangler d1 create shadowbox  # paste database_id into wrangler.jsonc
-!wrangler d1 execute shadowbox --remote --file schema.sql  # --remote matters: without it you seed local only
-!uv tool install workers-py
-!pywrangler sync
-!powershell -ExecutionPolicy ByPass -File scripts/vendor-worker.ps1  # bundle local src, not just PyPI deps
-!pywrangler deploy
-```
-
-Production note: the Worker (`apps/api/worker.py`) serves the same FastAPI app built by `create_app()` with no store, so each request gets a `D1Store` from the `DB` binding (schema in `schema.sql`). Local runs inject SQLite. `D1Store` is contract-tested against a fake binding; production verification needs a real account (M4b-full).
-
-Live demo: `https://shadowbox-api.pablodo004.workers.dev` (static demo at `/`, API under `/api/v1/`). The static demo deploys to Pages as-is and talks to any API base URL.
-
-Open `apps/web/index.html` after `Run` to scrub virtual time: the SVG graph colors failed components red and shows active faults per second (first 500 sampled requests).
-
-## Studio (React + Cytoscape)
-
-Full UI in `apps/studio/` (Vite, strict TS). Needs Node deps (run yourself):
-
-```powershell
-cd apps/studio
-npm install
-npm run build   # tsc plus vite
-npm run dev     # /api proxies to 127.0.0.1:8000
-```
-
-Run any scenario vs baseline, inspect p99/error verdict, scrub the failure cascade on the Cytoscape graph.
-
-Live: `https://shadowbox-avg.pages.dev` (paste the Worker URL as API base).
-
-## Environment variables
-
-None required. Server mode reads no env vars yet; Cloudflare D1 bindings arrive with the production Worker swap.
-
-## Project structure
+Virtual-time discrete-event engine (heapq, 1 ms resolution, isolated seeded RNG). Requests traverse the dependency graph through per-component capacity slots, FIFO/drop queues, and timeouts; faults (unavailable, latency, error-rate, capacity reduction, saturation) apply in windows. Throughput: ~840k events in 0.6 s on an i7 laptop (SLO: 50k < 2 s).
 
 ```text
 src/shadowbox/         # model, dsl, cli, errors, engine, metrics, report, cards, api, store
 src/shadowbox/data/    # canonical example + chaos cards (shipped in the wheel)
 schemas/               # model-v1.json, scenario-v1.json
 tests/                 # unit, deterministic (golden seed 42), property, integration
-tests/fixtures/        # broken models (E_CYCLE, E_REF)
 apps/web/              # static demo with replay (no build)
 apps/studio/           # React + Cytoscape UI (Vite, strict TS)
 ```
 
-## Run tests
+Verified: `ruff` + strict `mypy` clean, 46 pytest green (golden hash, Hypothesis invariants, API integration), CI on every push, deterministic local↔cloud.
+
+## Develop
 
 ```powershell
-uv run ruff check .
-uv run mypy src
-uv run pytest
+uv python pin 3.13
+uv venv
+uv sync --group dev
+uv run ruff check .; uv run mypy src; uv run pytest
 ```
 
-Benchmarks (reference: i7-1255U, 16GB, Python 3.13; SLO: 50k events < 2s):
+Work happens on `feat/*` branches, merged green into `master`. No paid service and no credit card at any tier — local, PyPI, and Cloudflare free tiers only.
 
-- checkout db-failure (6k reqs, 85k events): ~0.05s
-- 60k reqs, 840k events: ~0.6s
+## License
 
-## Deploy notes
-
-Local-first: CLI and `serve` need nothing but Python. Demo deploy: Cloudflare Pages (web) + Python Worker (FastAPI via `workers.asgi`) + D1 — see `Deploy (Cloudflare...)` above. No paid service, no credit card at any tier. See `ShadowBox.md` (local spec, git-ignored) for the full contract.
+Apache-2.0. Built by [Pablo Domínguez](https://github.com/Pa004).
