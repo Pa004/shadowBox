@@ -1,9 +1,0 @@
-body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
-pre { background: #111; color: #eee; padding: 1rem; overflow-x: auto; }
-button { padding: 0.5rem 1rem; margin-top: 0.5rem; }
-svg text { font-size: 12px; }
-.node-ok { fill: #2e7d32; }
-.node-fail { fill: #c62828; }
-.node-warn { fill: #ef6c00; }
-.edge { stroke: #888; stroke-width: 2; marker-end: url(#arrow); }
-.label { fill: #fff; text-anchor: middle; }

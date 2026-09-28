@@ -51,24 +51,28 @@ export default function App() {
   const verdict = baseline && m ? (m.error_rate > baseline.metrics.error_rate ? "REGRESSION" : "pass") : "-";
 
   return (
-    <main style={{ fontFamily: "system-ui", maxWidth: 900, margin: "2rem auto", padding: "0 1rem" }}>
+    <main style={{ maxWidth: 900, margin: "2rem auto", padding: "0 1rem" }}>
       <h1>ShadowBox Studio</h1>
-      <p>What-if simulation. Results are illustrative, never production measurements.</p>
-      <label>API base <input value={base} onChange={(e) => setBase(e.target.value)} size={30} /></label>{" "}
-      <button onClick={() => setBase("http://127.0.0.1:8000")}>use local</button>{" "}
+      <p style={{ color: "var(--sb-muted)" }}>What-if simulation. Results are illustrative, never production measurements.</p>
+      <label>API base <input className="sb-input" value={base} onChange={(e) => setBase(e.target.value)} size={30} /></label>{" "}
+      <button className="sb-btn" onClick={() => setBase("http://127.0.0.1:8000")}>use local</button>{" "}
       <label>Scenario{" "}
-        <select value={scenarioName} onChange={(e) => setScenarioName(e.target.value)}>
+        <select className="sb-select" value={scenarioName} onChange={(e) => setScenarioName(e.target.value)}>
           {SCENARIOS.map((s) => <option key={s.name} value={s.name}>{s.name}</option>)}
         </select>
       </label>{" "}
-      <button onClick={run} disabled={busy}>{busy ? "Running..." : "Run vs baseline"}</button>
-      {error && <pre style={{ color: "red" }}>{error}</pre>}
+      <button className="sb-btn" onClick={run} disabled={busy}>{busy ? "Running..." : "Run vs baseline"}</button>
+      {error && <pre className="sb-pre" style={{ color: "var(--sb-danger)" }}>{error}</pre>}
       {m && (
         <>
-          <p>error_rate={m.error_rate.toFixed(3)} p99={m.latency_ms.p99}ms verdict={verdict} hash={report?.metrics_hash.slice(0, 12)}</p>
-          <div ref={boxRef} style={{ width: "100%", height: 320, border: "1px solid #ccc" }} />
+          <p>error_rate={m.error_rate.toFixed(3)} p99={m.latency_ms.p99}ms{" "}
+            <span className={verdict === "REGRESSION" ? "sb-verdict-fail" : "sb-verdict-pass"}>
+              {verdict === "REGRESSION" ? "✕ " : "✓ "}{verdict}
+            </span>{" "}
+            hash={report?.metrics_hash.slice(0, 12)}</p>
+          <div ref={boxRef} style={{ width: "100%", height: 320, border: "1px solid var(--sb-border-strong)", borderRadius: "var(--sb-r)" }} />
           <label>t={t}s <input type="range" min={0} max={scenario.duration_s} value={t} onChange={(e) => setT(Number(e.target.value))} /></label>
-          <pre>active_faults=[{activeFaults(scenario.faults, t).join(", ") || "none"}]</pre>
+          <pre className="sb-pre">active_faults=[{activeFaults(scenario.faults, t).join(", ") || "none"}]</pre>
         </>
       )}
     </main>
