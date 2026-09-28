@@ -25,6 +25,7 @@ export function renderGraph(
         style: {
           label: "data(label)",
           color: "#fff",
+          "font-family": "JetBrains Mono, ui-monospace, monospace",
           "text-valign": "center",
           "text-halign": "center",
           "font-size": "10px",
@@ -34,9 +35,9 @@ export function renderGraph(
           height: 88
         }
       },
-      { selector: 'node[status="ok"]', style: { "background-color": "#2e7d32" } },
-      { selector: 'node[status="failing"]', style: { "background-color": "#c62828" } },
-      { selector: 'node[status="degraded"]', style: { "background-color": "#ef6c00" } },
+      { selector: 'node[status="ok"]', style: { "background-color": "oklch(74% 0.155 150)" } },
+      { selector: 'node[status="failing"]', style: { "background-color": "oklch(70% 0.175 28)" } },
+      { selector: 'node[status="degraded"]', style: { "background-color": "oklch(80% 0.14 82)" } },
       { selector: "edge", style: { width: 2, "line-color": "#888", "target-arrow-shape": "triangle", "target-arrow-color": "#888" } }
     ],
     layout: { name: "breadthfirst", directed: true, padding: 30 }
