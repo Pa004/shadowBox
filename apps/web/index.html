@@ -64,6 +64,25 @@
 [data-theme="light"] .nodesub{fill:#4a5a6e}
 .nodefoot{fill:#6b7a90}
 [data-theme="light"] .nodefoot{fill:#7c8ba0}
+/* ---------- light leftovers: hard dark surfaces become light ---------- */
+[data-theme="light"] .chip{background:#fff;color:oklch(35% 0.015 260);border-color:var(--border-strong)}
+[data-theme="light"] .chip[aria-pressed="true"]{color:var(--accent-ink)}
+[data-theme="light"] .hash-val{background:#fff;color:oklch(25% 0.01 260)}
+[data-theme="light"] .node-btn{background:#fff;color:oklch(25% 0.01 260)}
+[data-theme="light"] .meta-tag{background:#fff;color:oklch(35% 0.015 260)}
+[data-theme="light"] .meta-tag b{color:oklch(25% 0.01 260)}
+[data-theme="light"] .graph-wrap{background:#fff}
+/* ---------- breathing room + hierarchy (both themes) ---------- */
+.panel-body{padding:24px}
+.controls{gap:20px}
+.zone-nav-inner{gap:8px}
+.zone-nav a{padding:9px 16px}
+table td, table th{padding:12px 14px}
+#zone-guide .panel-body{gap:28px}
+.tstep, .card{padding:16px}
+.drawer{gap:14px}
+.graph-controls{gap:10px;margin-top:16px}
+.tour-nav{gap:10px}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
@@ -877,9 +896,12 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     if("IntersectionObserver" in window){
       var io = new IntersectionObserver(function(entries){
         entries.forEach(function(e){ if(e.isIntersecting) mark(e.target.id); });
-      }, {rootMargin:"-30% 0px -60% 0px"});
+      }, {rootMargin:"-45% 0px -45% 0px", threshold:0});
       ["zone-controls","zone-verdict","zone-kpis","zone-graph","zone-metrics","zone-compare","zone-guide"].forEach(function(id){
         var el=document.getElementById(id); if(el) io.observe(el);
+      });
+      links.forEach(function(a){
+        a.addEventListener("click",function(){ mark(a.getAttribute("href").slice(1)); });
       });
     }
     var top=$("toTop");
