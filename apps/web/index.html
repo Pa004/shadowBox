@@ -78,10 +78,32 @@ a{color:var(--fg)}
 .num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
 /* ---------- top chrome ---------- */
 .topbar{
-  position:sticky;top:0;z-index:40;
-  background:oklch(18.5% 0.014 260 / 0.94);backdrop-filter:blur(10px);
+  position:static;
+  background:oklch(18.5% 0.014 260 / 0.94);
   border-bottom:1px solid var(--border);
 }
+[data-theme="light"] .topbar{ background:oklch(100% 0 0 / 0.96); }
+/* ---------- section nav (single sticky element) ---------- */
+.zone-nav{
+  position:sticky;top:0;z-index:50;
+  background:oklch(18.5% 0.014 260 / 0.96);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+[data-theme="light"] .zone-nav{ background:oklch(100% 0 0 / 0.96); }
+.zone-nav-inner{max-width:1440px;margin:0 auto;padding:8px 24px;display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.zone-nav a{
+  font-size:12px;font-weight:600;letter-spacing:0.04em;text-decoration:none;
+  color:var(--muted);border:1px solid transparent;border-radius:999px;padding:7px 12px;min-height:36px;
+  display:inline-flex;align-items:center;
+}
+.zone-nav a:hover{color:var(--fg);border-color:var(--border-strong)}
+.zone-nav a.active{color:var(--accent-ink);background:var(--accent);border-color:transparent;font-weight:700}
+#toTop{
+  position:fixed;right:18px;bottom:18px;z-index:60;display:none;
+  width:44px;height:44px;border-radius:50%;border:1px solid var(--border-strong);
+  background:var(--surface-2);color:var(--fg);font-size:18px;cursor:pointer;
+}
+#toTop.show{display:block}
 .topbar-inner{max-width:1440px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:12px;min-width:0}
 .brand-mark{width:32px;height:32px;border-radius:8px;background:var(--surface-3);border:1px solid var(--border-strong);display:grid;place-items:center;box-shadow:var(--shadow-1);flex:none}
@@ -91,8 +113,12 @@ a{color:var(--fg)}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .conf-pill{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:6px 12px}
 .conf-dot{width:8px;height:8px;border-radius:50%;background:var(--warn);flex:none}
-.btn-tour{background:transparent;color:var(--fg);border:1px solid var(--border-strong);border-radius:8px;padding:9px 14px;font:600 13px var(--font-body);letter-spacing:0.02em;cursor:pointer;min-height:44px}
-.btn-tour:hover{border-color:var(--fg);background:var(--surface-2)}
+.btn-tour{background:var(--surface-2);color:var(--fg);border:1px solid var(--border-strong);border-radius:8px;padding:9px 14px;font:600 13px var(--font-body);letter-spacing:0.02em;cursor:pointer;min-height:44px;white-space:nowrap}
+.btn-tour:hover{border-color:var(--fg);}
+[data-theme="light"] .field input,
+[data-theme="light"] .field select{background:#fff;color:oklch(25% 0.01 260)}
+[data-theme="light"] .tstep,[data-theme="light"] .card{background:#fff}
+[data-theme="light"] .tstep h4,[data-theme="light"] .card h4{color:oklch(25% 0.01 260)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 /* ---------- layout ---------- */
 .page{max-width:1440px;margin:0 auto;padding:24px;display:grid;gap:16px}
@@ -238,7 +264,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
 </style>
 </head>
 <body>
-<div class="topbar">
+<div class="topbar" id="top">
   <div class="topbar-inner">
     <div class="brand" data-od-id="brand">
       <div class="brand-mark" aria-hidden="true">
@@ -262,8 +288,11 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
 </div>
 
 <main class="page">
+<nav class="zone-nav" aria-label="Sections"><div class="zone-nav-inner" id="zoneNav">
+<a href="#zone-controls">Controls</a><a href="#zone-verdict">Verdict</a><a href="#zone-kpis">KPIs</a><a href="#zone-graph">Graph</a><a href="#zone-metrics">Metrics</a><a href="#zone-compare">Compare</a><a href="#zone-guide">Guide</a>
+</div></nav>
   <!-- ZONE 1 -->
-  <section class="panel" aria-labelledby="z1t" data-od-id="zone-controls">
+  <section class="panel" id="zone-controls" aria-labelledby="z1t" data-od-id="zone-controls">
     <div class="panel-head">
       <span class="zone-tag">Zone 1 · Model &amp; scenario</span>
       <h2 class="panel-title" id="z1t">Simulation controls</h2>
@@ -318,7 +347,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   </section>
 
   <!-- ZONE 2 -->
-  <section class="verdict is-idle panel" id="verdictBanner" aria-live="polite" aria-labelledby="verdictTitle" data-od-id="zone-verdict">
+  <section class="verdict is-idle panel" id="zone-verdict" aria-live="polite" aria-labelledby="verdictTitle" data-od-id="zone-verdict">
     <div class="verdict-inner">
       <div class="verdict-icon" aria-hidden="true" id="verdictIcon">
         <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="8.5" stroke="currentColor" stroke-width="1.7" stroke-dasharray="3 2.4"/><circle cx="11" cy="11" r="2.4" fill="currentColor"/></svg>
@@ -343,7 +372,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   </section>
 
   <!-- ZONE 3 -->
-  <section class="panel" aria-labelledby="z3t" data-od-id="zone-kpis">
+  <section class="panel" id="zone-kpis" aria-labelledby="z3t" data-od-id="zone-kpis">
     <div class="panel-head"><span class="zone-tag">Zone 3 · KPIs</span><h2 class="panel-title" id="z3t">Result indicators</h2>
       <span class="pill idle" id="kpiPill">● EMPTY — no data</span></div>
     <div class="panel-body">
@@ -362,7 +391,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
 
   <div class="cols2">
     <!-- ZONE 4 -->
-    <section class="panel" aria-labelledby="z4t" data-od-id="zone-graph">
+    <section class="panel" id="zone-graph" aria-labelledby="z4t" data-od-id="zone-graph">
       <div class="panel-head"><span class="zone-tag">Zone 4 · Topology</span><h2 class="panel-title" id="z4t">Architecture graph</h2></div>
       <div class="panel-body">
         <div class="legend" aria-label="Legend">
@@ -403,7 +432,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     </section>
 
     <!-- ZONE 5 -->
-    <section class="panel" aria-labelledby="z5t" data-od-id="zone-metrics">
+    <section class="panel" id="zone-metrics" aria-labelledby="z5t" data-od-id="zone-metrics">
       <div class="panel-head"><span class="zone-tag">Zone 5 · Metrics</span><h2 class="panel-title" id="z5t">Latency distribution</h2></div>
       <div class="panel-body">
         <div id="pbars" aria-label="Percentile bars"></div>
@@ -419,7 +448,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   </div>
 
   <!-- ZONE 6 -->
-  <section class="panel" aria-labelledby="z6t" data-od-id="zone-compare">
+  <section class="panel" id="zone-compare" aria-labelledby="z6t" data-od-id="zone-compare">
     <div class="panel-head"><span class="zone-tag">Zone 6 · Compare</span><h2 class="panel-title" id="z6t">Multi-scenario matrix</h2>
       <p class="panel-sub">All rows are simulated with the current seed. Breaches vs baseline are highlighted with icon + text, never color alone.</p>
       <button class="btn-ghost" id="btnRunAll" data-od-id="run-all" style="margin-left:auto">Run all 8 scenarios</button>
@@ -442,7 +471,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   </section>
 
   <!-- ZONE 7 -->
-  <section class="panel" aria-labelledby="z7t" data-od-id="zone-guide">
+  <section class="panel" id="zone-guide" aria-labelledby="z7t" data-od-id="zone-guide">
     <div class="panel-head"><span class="zone-tag">Zone 7 · Guide</span><h2 class="panel-title" id="z7t">Tour, catalog &amp; assumptions</h2></div>
     <div class="panel-body" style="display:grid;gap:20px">
       <div>
@@ -488,6 +517,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
 </main>
 
 <div class="sr-only" aria-live="polite" id="live"></div>
+<button id="toTop" aria-label="Back to top">↑</button>
 
 <script>
 (function(){
@@ -676,7 +706,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     if(r.scenario==="baseline"){ baseline=r; try{localStorage.setItem("sb-baseline",JSON.stringify(r));}catch(e){} b=r; }
     var vd = verdictOf(r,b);
     // verdict banner
-    var banner=$("verdictBanner"), pill=$("verdictPill");
+    var banner=$("zone-verdict"), pill=$("verdictPill");
     banner.classList.remove("is-idle","is-pass","is-fail");
     banner.classList.add(vd.v==="REGRESSION"?"is-fail":"is-pass");
     $("verdictTitle").textContent = vd.v==="REGRESSION" ? "REGRESSION — simulated degradation" : "PASS — within simulated thresholds";
@@ -836,6 +866,27 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     var cur=document.documentElement.getAttribute("data-theme");
     applyTheme(cur==="dark" ? "light" : "dark");
   });
+  // ---------- section nav (scroll-spy + deep links) ----------
+  (function nav(){
+    var links = Array.prototype.slice.call(document.querySelectorAll("#zoneNav a"));
+    var byId = {};
+    links.forEach(function(a){ byId[a.getAttribute("href").slice(1)] = a; });
+    function mark(id){
+      links.forEach(function(a){ a.classList.toggle("active", a.getAttribute("href") === "#"+id); });
+    }
+    if("IntersectionObserver" in window){
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting) mark(e.target.id); });
+      }, {rootMargin:"-30% 0px -60% 0px"});
+      ["zone-controls","zone-verdict","zone-kpis","zone-graph","zone-metrics","zone-compare","zone-guide"].forEach(function(id){
+        var el=document.getElementById(id); if(el) io.observe(el);
+      });
+    }
+    var top=$("toTop");
+    top.addEventListener("click",function(){ window.scrollTo({top:0,behavior:"smooth"}); });
+    window.addEventListener("scroll",function(){ top.classList.toggle("show", window.scrollY>600); },{passive:true});
+    if(location.hash && byId[location.hash.slice(1)]) mark(location.hash.slice(1));
+  })();
   // init: paint cached snapshot instantly, then refresh live
   try{
     var snap = JSON.parse(localStorage.getItem("sb-twin-last")||"null");

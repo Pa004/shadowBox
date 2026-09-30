@@ -114,9 +114,16 @@ export default function App() {
   const verdict = baseline && m ? (m.error_rate > baseline.metrics.error_rate ? "REGRESSION" : "pass") : "-";
 
   return (
-    <main style={{ maxWidth: 900, margin: "2rem auto", padding: "0 1rem" }}>
+    <main id="top" style={{ maxWidth: 900, margin: "2rem auto", padding: "0 1rem" }}>
       <h1>ShadowBox Studio</h1>
       <p style={{ color: "var(--sb-muted)" }}>What-if simulation. Results are illustrative, never production measurements.</p>
+      <nav className="sb-nav" aria-label="Sections">
+        <a href="#controls">Controls</a>
+        <a href="#results">Results</a>
+        <a href="#graph">Graph</a>
+        <a href="#replay">Replay</a>
+      </nav>
+      <div id="controls">
       <button className="sb-btn" onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
         {theme === "light" ? "Dark mode" : "Light mode"}
       </button>{" "}
@@ -128,16 +135,17 @@ export default function App() {
         </select>
       </label>{" "}
       <button className="sb-btn" onClick={run} disabled={busy}>{busy ? "Running..." : "Run vs baseline"}</button>
+      </div>
       {error && <pre className="sb-pre" style={{ color: "var(--sb-danger)" }}>{error}</pre>}
       {m && (
         <>
-          <p>error_rate={m.error_rate.toFixed(3)} p99={m.latency_ms.p99}ms{" "}
+          <p id="results">error_rate={m.error_rate.toFixed(3)} p99={m.latency_ms.p99}ms{" "}
             <span className={verdict === "REGRESSION" ? "sb-verdict-fail" : "sb-verdict-pass"}>
               {verdict === "REGRESSION" ? "✕ " : "✓ "}{verdict}
             </span>{" "}
             hash={report?.metrics_hash.slice(0, 12)}</p>
-          <div ref={boxRef} style={{ width: "100%", height: 320, border: "1px solid var(--sb-border-strong)", borderRadius: "var(--sb-r)" }} />
-          <label>t={t}s <input type="range" min={0} max={scenario.duration_s} value={t} onChange={(e) => setT(Number(e.target.value))} /></label>
+          <div id="graph" ref={boxRef} style={{ width: "100%", height: 320, border: "1px solid var(--sb-border-strong)", borderRadius: "var(--sb-r)" }} />
+          <label id="replay">t={t}s <input type="range" min={0} max={scenario.duration_s} value={t} onChange={(e) => setT(Number(e.target.value))} /></label>
           <pre className="sb-pre">active_faults=[{activeFaults(scenario.faults, t).join(", ") || "none"}]</pre>
         </>
       )}
