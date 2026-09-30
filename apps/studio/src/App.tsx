@@ -5,6 +5,26 @@ import { activeFaults, failuresUpTo, renderGraph } from "./graph";
 import type cytoscape from "cytoscape";
 
 export const DEFAULT_API_BASE = "https://shadowbox-api.pablodo004.workers.dev";
+const SNAP_KEY = "sb-studio-last";
+
+interface Snapshot {
+  report: Report;
+  baseline: Report;
+  events: SimEvent[];
+  scenarioName: string;
+}
+
+function loadSnapshot(): Snapshot | null {
+  try {
+    const raw = localStorage.getItem(SNAP_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw) as Snapshot;
+    if (!s.report?.metrics || !s.baseline?.metrics || !Array.isArray(s.events)) return null;
+    return s;
+  } catch {
+    return null;
+  }
+}
 
 export default function App() {
   const [base, setBase] = useState(DEFAULT_API_BASE);
@@ -32,6 +52,12 @@ export default function App() {
       setReport(cur.report);
       setEvents(cur.events);
       setT(0);
+      try {
+        const snap: Snapshot = { report: cur.report, baseline: baseRes.report, events: cur.events, scenarioName };
+        localStorage.setItem(SNAP_KEY, JSON.stringify(snap));
+      } catch {
+        /* private mode: fresh run still displayed */
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -40,6 +66,13 @@ export default function App() {
   }
 
   useEffect(() => {
+    const snap = loadSnapshot();
+    if (snap) {
+      setBaseline(snap.baseline);
+      setReport(snap.report);
+      setEvents(snap.events);
+      setScenarioName(snap.scenarioName);
+    }
     if (!ranRef.current) {
       ranRef.current = true;
       void run();

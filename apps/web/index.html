@@ -639,7 +639,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   }
   function render(r){
     current=r;
-    var b = (r.scenario==="baseline")? r : (baseline||null);
+    try{ localStorage.setItem("sb-twin-last", JSON.stringify({r:r, baseline:baseline, matrix:matrix})); }catch(e){}    var b = (r.scenario==="baseline")? r : (baseline||null);
     if(r.scenario==="baseline"){ baseline=r; try{localStorage.setItem("sb-baseline",JSON.stringify(r));}catch(e){} b=r; }
     var vd = verdictOf(r,b);
     // verdict banner
@@ -787,9 +787,17 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
       $("live").textContent="All 8 scenarios simulated with seed "+seed+". Matrix populated.";
     }catch(err){ showApiError(apiBase(), err); }
   });
-  // init
+  // init: paint cached snapshot instantly, then refresh live
+  try{
+    var snap = JSON.parse(localStorage.getItem("sb-twin-last")||"null");
+    if(snap && snap.r && typeof snap.r.error === "number" && snap.baseline){
+      baseline=snap.baseline; matrix=snap.matrix||[];
+      render(snap.r); renderMatrix();
+      $("live").textContent="Showing cached result — refreshing live…";
+    }
+  }catch(e){}
   renderGraph(); renderDrawer(); applyZoom();
-  if(baseline){ matrix=[baseline]; renderMatrix(); }
+  if(baseline && !matrix.length){ matrix=[baseline]; renderMatrix(); }
   doRun(); // first impression is a populated dashboard, not an empty shell
 })();
 </script>
