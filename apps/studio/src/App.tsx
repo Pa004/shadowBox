@@ -17,6 +17,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const cyRef = useRef<cytoscape.Core | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
+  const ranRef = useRef(false);
 
   const scenario = SCENARIOS.find((s) => s.name === scenarioName) ?? SCENARIOS[0];
 
@@ -37,6 +38,14 @@ export default function App() {
       setBusy(false);
     }
   }
+
+  useEffect(() => {
+    if (!ranRef.current) {
+      ranRef.current = true;
+      void run();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!boxRef.current || !report) return;
