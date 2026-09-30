@@ -35,9 +35,10 @@ export function renderGraph(
           height: 88
         }
       },
-      { selector: 'node[status="ok"]', style: { "background-color": "oklch(74% 0.155 150)" } },
-      { selector: 'node[status="failing"]', style: { "background-color": "oklch(70% 0.175 28)" } },
-      { selector: 'node[status="degraded"]', style: { "background-color": "oklch(80% 0.14 82)" } },
+      // NOTE: hex only — Cytoscape renders on canvas and cannot parse oklch().
+      { selector: 'node[status="ok"]', style: { "background-color": "#43a047" } },
+      { selector: 'node[status="failing"]', style: { "background-color": "#e53935" } },
+      { selector: 'node[status="degraded"]', style: { "background-color": "#fb8c00" } },
       { selector: "edge", style: { width: 2, "line-color": "#888", "target-arrow-shape": "triangle", "target-arrow-color": "#888" } }
     ],
     layout: { name: "breadthfirst", directed: true, padding: 30 }
