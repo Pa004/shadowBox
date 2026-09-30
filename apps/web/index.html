@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,6 +32,38 @@
   --shadow-2: 0 4px 16px oklch(0% 0 0 / 0.45);
   --shadow-3: 0 12px 40px oklch(0% 0 0 / 0.5);
 }
+/* Light theme is the default (data-theme="light" on <html>). Dark opt-in. */
+[data-theme="light"]{
+  --bg: oklch(96% 0.005 260);
+  --surface: oklch(100% 0 0);
+  --surface-2: oklch(94% 0.008 260);
+  --surface-3: oklch(90% 0.01 260);
+  --fg: oklch(25% 0.01 260);
+  --muted: oklch(45% 0.02 260);
+  --faint: oklch(55% 0.02 260);
+  --border: oklch(88% 0.01 260);
+  --border-strong: oklch(78% 0.012 260);
+  --accent: oklch(50% 0.15 150);
+  --accent-ink: oklch(98% 0.005 150);
+  --ok: oklch(50% 0.15 150);
+  --warn: oklch(52% 0.13 82);
+  --danger: oklch(50% 0.18 28);
+  --info: oklch(55% 0.1 230);
+  --shadow-1: 0 1px 2px oklch(25% 0.01 260 / 0.12);
+  --shadow-2: 0 4px 16px oklch(25% 0.01 260 / 0.12);
+  --shadow-3: 0 12px 40px oklch(25% 0.01 260 / 0.16);
+}
+/* SVG graph nodes follow the theme via classes (attributes can't use var()). */
+.nodebox{fill:#202a3a;stroke-width:1.6}
+[data-theme="light"] .nodebox{fill:#ffffff}
+.nodebox.sel{fill:#2b3648}
+[data-theme="light"] .nodebox.sel{fill:#d7e3f0}
+.nodename{fill:#eef3f8}
+[data-theme="light"] .nodename{fill:#1c2733}
+.nodesub{fill:#93a1b5}
+[data-theme="light"] .nodesub{fill:#4a5a6e}
+.nodefoot{fill:#6b7a90}
+[data-theme="light"] .nodefoot{fill:#7c8ba0}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
@@ -223,6 +255,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     </div>
     <div class="topbar-right">
       <span class="conf-pill" data-od-id="confidence-pill"><span class="conf-dot" aria-hidden="true"></span>Confidence: <strong>&nbsp;low — estimate only</strong></span>
+      <button class="btn-ghost" id="btnTheme" data-od-id="theme-toggle" aria-label="Toggle dark mode">Dark mode</button>
       <button class="btn-tour" id="btnStartTour" data-od-id="start-tour">Start guided tour</button>
     </div>
   </div>
@@ -598,12 +631,12 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
       grp.style.cursor="pointer";
       var sel = n===selectedNode;
       grp.innerHTML =
-        '<rect x="'+(p.x-72)+'" y="'+(p.y-38)+'" width="144" height="76" rx="8" fill="'+(sel?"#2b3648":"#202a3a")+'" stroke="'+(sel?"#7ee2a8":statusColor(st))+'" stroke-width="'+(sel?2.4:1.6)+'"/>'+
+        '<rect x="'+(p.x-72)+'" y="'+(p.y-38)+'" width="144" height="76" rx="8" class="'+(sel?"nodebox sel":"nodebox")+'" stroke="'+(sel?"#7ee2a8":statusColor(st))+'" stroke-width="'+(sel?2.4:1.6)+'"/>'+
         '<circle cx="'+(p.x-50)+'" cy="'+(p.y-14)+'" r="11" fill="none" stroke="'+statusColor(st)+'" stroke-width="1.6"/>'+
         '<text x="'+(p.x-50)+'" y="'+(p.y-9)+'" text-anchor="middle" font-size="11" font-weight="700" fill="'+statusColor(st)+'">'+statusIcon(st)+'</text>'+
-        '<text x="'+(p.x-28)+'" y="'+(p.y-8)+'" font-size="13" font-weight="600" fill="#eef3f8">'+n+'</text>'+
-        '<text x="'+(p.x-28)+'" y="'+(p.y+10)+'" font-size="10.5" fill="#93a1b5">'+st+'</text>'+
-        '<text x="'+(p.x-50)+'" y="'+(p.y+28)+'" font-size="9.5" fill="#6b7a90">simulated</text>';
+        '<text x="'+(p.x-28)+'" y="'+(p.y-8)+'" font-size="13" font-weight="600" class="nodename">'+n+'</text>'+
+        '<text x="'+(p.x-28)+'" y="'+(p.y+10)+'" font-size="10.5" class="nodesub">'+st+'</text>'+
+        '<text x="'+(p.x-50)+'" y="'+(p.y+28)+'" font-size="9.5" class="nodefoot">simulated</text>';
       grp.addEventListener("click",function(){selectNode(n);});
       grp.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();selectNode(n);}});
       g.appendChild(grp);
@@ -786,6 +819,22 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
       var r=await simulate($("scenario").value,seed); render(r);
       $("live").textContent="All 8 scenarios simulated with seed "+seed+". Matrix populated.";
     }catch(err){ showApiError(apiBase(), err); }
+  });
+  // ---------- theme (light default, persisted) ----------
+  function applyTheme(mode){
+    document.documentElement.setAttribute("data-theme", mode);
+    var btn=$("btnTheme");
+    if(btn) btn.textContent = mode==="light" ? "Dark mode" : "Light mode";
+    try{ localStorage.setItem("sb-theme", mode); }catch(e){}
+  }
+  (function initTheme(){
+    var saved=null;
+    try{ saved=localStorage.getItem("sb-theme"); }catch(e){}
+    applyTheme(saved==="dark" ? "dark" : "light");
+  })();
+  $("btnTheme").addEventListener("click", function(){
+    var cur=document.documentElement.getAttribute("data-theme");
+    applyTheme(cur==="dark" ? "light" : "dark");
   });
   // init: paint cached snapshot instantly, then refresh live
   try{

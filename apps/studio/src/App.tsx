@@ -6,6 +6,17 @@ import type cytoscape from "cytoscape";
 
 export const DEFAULT_API_BASE = "https://shadowbox-api.pablodo004.workers.dev";
 const SNAP_KEY = "sb-studio-last";
+const THEME_KEY = "sb-theme";
+
+type Theme = "light" | "dark";
+
+function initialTheme(): Theme {
+  try {
+    return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
+  } catch {
+    return "light";
+  }
+}
 
 interface Snapshot {
   report: Report;
@@ -35,6 +46,7 @@ export default function App() {
   const [t, setT] = useState(0);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [theme, setTheme] = useState<Theme>(initialTheme);
   const cyRef = useRef<cytoscape.Core | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const ranRef = useRef(false);
@@ -64,6 +76,15 @@ export default function App() {
       setBusy(false);
     }
   }
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch {
+      /* private mode */
+    }
+  }, [theme]);
 
   useEffect(() => {
     const snap = loadSnapshot();
@@ -96,6 +117,9 @@ export default function App() {
     <main style={{ maxWidth: 900, margin: "2rem auto", padding: "0 1rem" }}>
       <h1>ShadowBox Studio</h1>
       <p style={{ color: "var(--sb-muted)" }}>What-if simulation. Results are illustrative, never production measurements.</p>
+      <button className="sb-btn" onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+        {theme === "light" ? "Dark mode" : "Light mode"}
+      </button>{" "}
       <label>API base <input className="sb-input" value={base} onChange={(e) => setBase(e.target.value)} size={30} /></label>{" "}
       <button className="sb-btn" onClick={() => setBase("http://127.0.0.1:8000")}>use local</button>{" "}
       <label>Scenario{" "}
