@@ -16,6 +16,21 @@
   --sb-r: 8px;
 }
 
+/* Light theme is the default (data-theme="light" on <html>). Dark opt-in. */
+[data-theme="light"] {
+  --sb-bg: oklch(96% 0.005 260);
+  --sb-surface: oklch(100% 0 0);
+  --sb-surface-2: oklch(94% 0.008 260);
+  --sb-fg: oklch(25% 0.01 260);
+  --sb-muted: oklch(45% 0.02 260);
+  --sb-border: oklch(88% 0.01 260);
+  --sb-border-strong: oklch(78% 0.012 260);
+  --sb-accent: oklch(50% 0.15 150);
+  --sb-ok: oklch(50% 0.15 150);
+  --sb-warn: oklch(52% 0.13 82);
+  --sb-danger: oklch(50% 0.18 28);
+}
+
 body {
   margin: 0;
   background: var(--sb-bg);
@@ -46,6 +61,10 @@ body {
   font: 500 13px var(--sb-font-mono);
   min-height: 44px;
 }
+[data-theme="light"] .sb-input,
+[data-theme="light"] .sb-select {
+  background: oklch(100% 0 0);
+}
 
 .sb-pre {
   background: #111;
@@ -54,6 +73,9 @@ body {
   border-radius: var(--sb-r);
   padding: 1rem;
   overflow-x: auto;
+}
+[data-theme="light"] .sb-pre {
+  background: oklch(94% 0.008 260);
 }
 
 .sb-verdict-fail { color: var(--sb-danger); font-weight: 700; }
