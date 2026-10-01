@@ -117,6 +117,10 @@ a{color:var(--fg)}
 }
 .zone-nav a:hover{color:var(--fg);border-color:var(--border-strong)}
 .zone-nav a.active{color:var(--accent-ink);background:var(--accent);border-color:transparent;font-weight:700}
+.zone-nav [role="tab"]{font-family:var(--font-body);font-size:12.5px;font-weight:600;letter-spacing:0.04em;color:var(--muted);background:transparent;border:1px solid transparent;border-radius:999px;padding:9px 18px;min-height:40px;cursor:pointer}
+.zone-nav [role="tab"]:hover{color:var(--fg);border-color:var(--border-strong)}
+.zone-nav [role="tab"][aria-selected="true"]{color:var(--accent-ink);background:var(--accent);border-color:transparent;font-weight:700}
+.tabpanel[hidden]{display:none}
 #toTop{
   position:fixed;right:18px;bottom:18px;z-index:60;display:none;
   width:44px;height:44px;border-radius:50%;border:1px solid var(--border-strong);
@@ -307,8 +311,8 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
 </div>
 
 <main class="page">
-<nav class="zone-nav" aria-label="Sections"><div class="zone-nav-inner" id="zoneNav">
-<a href="#zone-controls">Controls</a><a href="#zone-verdict">Verdict</a><a href="#zone-kpis">KPIs</a><a href="#zone-graph">Graph</a><a href="#zone-metrics">Metrics</a><a href="#zone-compare">Compare</a><a href="#zone-guide">Guide</a>
+<nav class="zone-nav" aria-label="Detail views"><div class="zone-nav-inner" id="zoneNav" role="tablist" aria-label="Detail tabs">
+<button role="tab" data-tab="topology" aria-selected="true" aria-controls="tab-topology" id="tabbtn-topology">Topology</button><button role="tab" data-tab="metrics" aria-selected="false" aria-controls="tab-metrics" id="tabbtn-metrics" tabindex="-1">Metrics</button><button role="tab" data-tab="compare" aria-selected="false" aria-controls="tab-compare" id="tabbtn-compare" tabindex="-1">Compare</button><button role="tab" data-tab="guide" aria-selected="false" aria-controls="tab-guide" id="tabbtn-guide" tabindex="-1">Guide</button>
 </div></nav>
   <!-- ZONE 1 -->
   <section class="panel" id="zone-controls" aria-labelledby="z1t" data-od-id="zone-controls">
@@ -408,7 +412,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     </div>
   </section>
 
-  <div class="cols2">
+  <div class="tabpanel" id="tab-topology" role="tabpanel" aria-labelledby="tabbtn-topology" tabindex="0">
     <!-- ZONE 4 -->
     <section class="panel" id="zone-graph" aria-labelledby="z4t" data-od-id="zone-graph">
       <div class="panel-head"><span class="zone-tag">Zone 4 · Topology</span><h2 class="panel-title" id="z4t">Architecture graph</h2></div>
@@ -449,7 +453,9 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
         </div>
       </div>
     </section>
+  </div>
 
+  <div class="tabpanel" id="tab-metrics" role="tabpanel" aria-labelledby="tabbtn-metrics" tabindex="0" hidden>
     <!-- ZONE 5 -->
     <section class="panel" id="zone-metrics" aria-labelledby="z5t" data-od-id="zone-metrics">
       <div class="panel-head"><span class="zone-tag">Zone 5 · Metrics</span><h2 class="panel-title" id="z5t">Latency distribution</h2></div>
@@ -466,6 +472,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     </section>
   </div>
 
+  <div class="tabpanel" id="tab-compare" role="tabpanel" aria-labelledby="tabbtn-compare" tabindex="0" hidden>
   <!-- ZONE 6 -->
   <section class="panel" id="zone-compare" aria-labelledby="z6t" data-od-id="zone-compare">
     <div class="panel-head"><span class="zone-tag">Zone 6 · Compare</span><h2 class="panel-title" id="z6t">Multi-scenario matrix</h2>
@@ -488,7 +495,9 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
       </div>
     </div>
   </section>
+  </div>
 
+  <div class="tabpanel" id="tab-guide" role="tabpanel" aria-labelledby="tabbtn-guide" tabindex="0" hidden>
   <!-- ZONE 7 -->
   <section class="panel" id="zone-guide" aria-labelledby="z7t" data-od-id="zone-guide">
     <div class="panel-head"><span class="zone-tag">Zone 7 · Guide</span><h2 class="panel-title" id="z7t">Tour, catalog &amp; assumptions</h2></div>
@@ -531,8 +540,9 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
       </div>
     </div>
   </section>
+  </div>
 
-  <div class="footer">ShadowBox Studio · what-if simulator · seed + assumptions + low confidence on every result · keyboard: Tab / Enter / Esc</div>
+  <div class="footer">ShadowBox Studio · what-if simulator · seed + assumptions + low confidence on every result · keyboard: Tab / Enter / Esc · <a href="#top">back to top ↑</a></div>
 </main>
 
 <div class="sr-only" aria-live="polite" id="live"></div>
@@ -663,7 +673,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   $("tourNext").addEventListener("click",function(){setTour(tourIdx+1);});
   $("tourBack").addEventListener("click",function(){setTour(tourIdx-1);});
   $("tourReplay").addEventListener("click",function(){setTour(0);});
-  $("btnStartTour").addEventListener("click",function(){setTour(0);document.querySelector('[data-od-id="zone-guide"]').scrollIntoView({block:"start"});});
+  $("btnStartTour").addEventListener("click",function(){showTab("guide");setTour(0);document.querySelector('[data-od-id="zone-guide"]').scrollIntoView({block:"start"});});
   // ---------- graph ----------
   var NPOS={api:{x:110,y:130},cache:{x:410,y:70},database:{x:410,y:210}};
   function statusColor(st){ return st==="healthy"?"#5fd598":st==="degraded"?"#e8c15a":"#f0757a"; }
@@ -866,6 +876,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
       for(var i=0;i<SCENARIOS.length;i++){ matrix.push(await simulate(SCENARIOS[i].id,seed)); }
       render(baseline); renderMatrix();
       var r=await simulate($("scenario").value,seed); render(r);
+      showTab("compare");
       $("live").textContent="All 8 scenarios simulated with seed "+seed+". Matrix populated.";
     }catch(err){ showApiError(apiBase(), err); }
   });
@@ -885,29 +896,40 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     var cur=document.documentElement.getAttribute("data-theme");
     applyTheme(cur==="dark" ? "light" : "dark");
   });
-  // ---------- section nav (scroll-spy + deep links) ----------
+  // ---------- detail tabs (Topology/Metrics/Compare/Guide + deep links) ----------
+  var TABS = ["topology", "metrics", "compare", "guide"];
+  function showTab(name, push){
+    if(TABS.indexOf(name) < 0) name = "topology";
+    TABS.forEach(function(k){
+      var btn = document.querySelector('[data-tab="'+k+'"]');
+      var panel = document.getElementById("tab-"+k);
+      var on = k === name;
+      if(btn){ btn.setAttribute("aria-selected", on ? "true" : "false"); btn.tabIndex = on ? 0 : -1; }
+      if(panel){ panel.hidden = !on; }
+    });
+    if(push !== false){
+      try{ history.replaceState(null, "", "#/"+name); }catch(e){}
+    }
+    $("live").textContent = "Detail view: " + name + ".";
+  }
   (function nav(){
-    var links = Array.prototype.slice.call(document.querySelectorAll("#zoneNav a"));
-    var byId = {};
-    links.forEach(function(a){ byId[a.getAttribute("href").slice(1)] = a; });
-    function mark(id){
-      links.forEach(function(a){ a.classList.toggle("active", a.getAttribute("href") === "#"+id); });
-    }
-    if("IntersectionObserver" in window){
-      var io = new IntersectionObserver(function(entries){
-        entries.forEach(function(e){ if(e.isIntersecting) mark(e.target.id); });
-      }, {rootMargin:"-45% 0px -45% 0px", threshold:0});
-      ["zone-controls","zone-verdict","zone-kpis","zone-graph","zone-metrics","zone-compare","zone-guide"].forEach(function(id){
-        var el=document.getElementById(id); if(el) io.observe(el);
+    var btns = Array.prototype.slice.call(document.querySelectorAll('#zoneNav [role="tab"]'));
+    btns.forEach(function(b, i){
+      b.addEventListener("click", function(){ showTab(b.getAttribute("data-tab")); });
+      b.addEventListener("keydown", function(e){
+        var j = null;
+        if(e.key === "ArrowRight") j = (i + 1) % btns.length;
+        if(e.key === "ArrowLeft") j = (i - 1 + btns.length) % btns.length;
+        if(e.key === "Home") j = 0;
+        if(e.key === "End") j = btns.length - 1;
+        if(j !== null){ e.preventDefault(); btns[j].focus(); showTab(btns[j].getAttribute("data-tab")); }
       });
-      links.forEach(function(a){
-        a.addEventListener("click",function(){ mark(a.getAttribute("href").slice(1)); });
-      });
-    }
+    });
+    var m = (location.hash || "").match(/^#\/(topology|metrics|compare|guide)$/);
+    showTab(m ? m[1] : "topology", false);
     var top=$("toTop");
     top.addEventListener("click",function(){ window.scrollTo({top:0,behavior:"smooth"}); });
     window.addEventListener("scroll",function(){ top.classList.toggle("show", window.scrollY>600); },{passive:true});
-    if(location.hash && byId[location.hash.slice(1)]) mark(location.hash.slice(1));
   })();
   // init: paint cached snapshot instantly, then refresh live
   try{
