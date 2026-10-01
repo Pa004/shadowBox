@@ -942,6 +942,10 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     });
     var m = (location.hash || "").match(/^#\/(topology|metrics|compare|guide)$/);
     showTab(m ? m[1] : "topology", false, !!m);
+    window.addEventListener("hashchange", function(){
+      var mm = (location.hash || "").match(/^#\/(topology|metrics|compare|guide)$/);
+      if(mm) showTab(mm[1], false);
+    });
     var top=$("toTop");
     top.addEventListener("click",function(){ window.scrollTo({top:0,behavior:"smooth"}); });
     window.addEventListener("scroll",function(){ top.classList.toggle("show", window.scrollY>600); },{passive:true});
