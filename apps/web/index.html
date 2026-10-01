@@ -121,6 +121,7 @@ a{color:var(--fg)}
 .zone-nav [role="tab"]:hover{color:var(--fg);border-color:var(--border-strong)}
 .zone-nav [role="tab"][aria-selected="true"]{color:var(--accent-ink);background:var(--accent);border-color:transparent;font-weight:700}
 .tabpanel[hidden]{display:none}
+.tabpanel{scroll-margin-top:76px}
 #toTop{
   position:fixed;right:18px;bottom:18px;z-index:60;display:none;
   width:44px;height:44px;border-radius:50%;border:1px solid var(--border-strong);
@@ -898,7 +899,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   });
   // ---------- detail tabs (Topology/Metrics/Compare/Guide + deep links) ----------
   var TABS = ["topology", "metrics", "compare", "guide"];
-  function showTab(name, push){
+  function showTab(name, push, scroll){
     if(TABS.indexOf(name) < 0) name = "topology";
     TABS.forEach(function(k){
       var btn = document.querySelector('[data-tab="'+k+'"]');
@@ -909,6 +910,10 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     });
     if(push !== false){
       try{ history.replaceState(null, "", "#/"+name); }catch(e){}
+    }
+    if(scroll !== false){
+      var active = document.getElementById("tab-"+name);
+      if(active && active.scrollIntoView) active.scrollIntoView({block:"start"});
     }
     $("live").textContent = "Detail view: " + name + ".";
   }
@@ -926,7 +931,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
       });
     });
     var m = (location.hash || "").match(/^#\/(topology|metrics|compare|guide)$/);
-    showTab(m ? m[1] : "topology", false);
+    showTab(m ? m[1] : "topology", false, !!m);
     var top=$("toTop");
     top.addEventListener("click",function(){ window.scrollTo({top:0,behavior:"smooth"}); });
     window.addEventListener("scroll",function(){ top.classList.toggle("show", window.scrollY>600); },{passive:true});
