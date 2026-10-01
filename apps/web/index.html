@@ -76,6 +76,8 @@
 .panel-body{padding:24px}
 .controls{gap:20px}
 .zone-nav-inner{gap:8px}
+.zone-nav .nav-label{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--faint);margin-right:4px}
+.zone-nav [role="tab"] svg{flex:none}
 .zone-nav a{padding:9px 16px}
 table td, table th{padding:12px 14px}
 #zone-guide .panel-body{gap:28px}
@@ -117,7 +119,7 @@ a{color:var(--fg)}
 }
 .zone-nav a:hover{color:var(--fg);border-color:var(--border-strong)}
 .zone-nav a.active{color:var(--accent-ink);background:var(--accent);border-color:transparent;font-weight:700}
-.zone-nav [role="tab"]{font-family:var(--font-body);font-size:12.5px;font-weight:600;letter-spacing:0.04em;color:var(--muted);background:transparent;border:1px solid transparent;border-radius:999px;padding:9px 18px;min-height:40px;cursor:pointer}
+.zone-nav [role="tab"]{font-family:var(--font-body);font-size:12.5px;font-weight:600;letter-spacing:0.04em;color:var(--muted);background:transparent;border:1px solid transparent;border-radius:999px;padding:9px 18px;min-height:40px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
 .zone-nav [role="tab"]:hover{color:var(--fg);border-color:var(--border-strong)}
 .zone-nav [role="tab"][aria-selected="true"]{color:var(--accent-ink);background:var(--accent);border-color:transparent;font-weight:700}
 .tabpanel[hidden]{display:none}
@@ -147,17 +149,17 @@ a{color:var(--fg)}
 /* ---------- layout ---------- */
 .page{max-width:1440px;margin:0 auto;padding:24px;display:grid;gap:16px}
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-1)}
-.panel-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap}
-.zone-tag{font-family:var(--font-mono);font-size:11px;letter-spacing:0.08em;color:var(--faint);text-transform:uppercase}
-.panel-title{font-family:var(--font-display);font-weight:650;font-size:15px;letter-spacing:-0.01em;margin:0}
-.panel-sub{font-size:12.5px;color:var(--muted);margin:0;max-width:65ch}
+.panel-head{display:flex;align-items:baseline;gap:8px 16px;padding:16px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.zone-tag{font-family:var(--font-mono);font-size:11px;letter-spacing:0.08em;color:var(--faint);text-transform:uppercase;flex-basis:100%}
+.panel-title{font-family:var(--font-display);font-weight:650;font-size:17px;letter-spacing:-0.01em;margin:0}
+.panel-sub{font-size:12.5px;color:var(--muted);margin:4px 0 0;max-width:65ch}
 .panel-body{padding:18px}
 /* ---------- control grid zone 1 ---------- */
-.controls{display:grid;grid-template-columns:1.3fr 1fr 0.55fr auto;gap:12px;align-items:end}
+.controls{display:grid;grid-template-columns:1.3fr 1fr 0.55fr auto;gap:12px 20px;align-items:start}
 .field label{display:block;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .field input,.field select{
   width:100%;background:oklch(18% 0.014 260);border:1px solid var(--border-strong);color:var(--fg);
-  border-radius:8px;padding:11px 12px;font:500 13.5px var(--font-mono);min-height:44px;
+  border-radius:8px;padding:11px 34px 11px 12px;font:500 13.5px var(--font-mono);min-height:44px;
 }
 .field input:focus,.field select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px oklch(74% 0.155 150 / 0.22)}
 .field .hint{font-size:12px;color:var(--faint);margin-top:6px}
@@ -320,7 +322,8 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
 
 <main class="page">
 <nav class="zone-nav" aria-label="Detail views"><div class="zone-nav-inner" id="zoneNav" role="tablist" aria-label="Detail tabs">
-<button role="tab" data-tab="topology" aria-selected="true" aria-controls="tab-topology" id="tabbtn-topology">Topology</button><button role="tab" data-tab="metrics" aria-selected="false" aria-controls="tab-metrics" id="tabbtn-metrics" tabindex="-1">Metrics</button><button role="tab" data-tab="compare" aria-selected="false" aria-controls="tab-compare" id="tabbtn-compare" tabindex="-1">Compare</button><button role="tab" data-tab="guide" aria-selected="false" aria-controls="tab-guide" id="tabbtn-guide" tabindex="-1">Guide</button>
+<span class="nav-label" aria-hidden="true">Detail views</span>
+<button role="tab" data-tab="topology" aria-selected="true" aria-controls="tab-topology" id="tabbtn-topology"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="3" cy="7" r="2" stroke="currentColor" stroke-width="1.4"/><circle cx="11" cy="3.5" r="2" stroke="currentColor" stroke-width="1.4"/><circle cx="11" cy="10.5" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 6.2 9 4.4M5 7.8 9 9.6" stroke="currentColor" stroke-width="1.2"/></svg> Topology</button><button role="tab" data-tab="metrics" aria-selected="false" aria-controls="tab-metrics" id="tabbtn-metrics" tabindex="-1"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2.5 11.5V7M7 11.5V2.5M11.5 11.5V5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> Metrics</button><button role="tab" data-tab="compare" aria-selected="false" aria-controls="tab-compare" id="tabbtn-compare" tabindex="-1"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="1.5" y="2.5" width="11" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 5.5h11M5.5 5.5v6" stroke="currentColor" stroke-width="1.2"/></svg> Compare</button><button role="tab" data-tab="guide" aria-selected="false" aria-controls="tab-guide" id="tabbtn-guide" tabindex="-1"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 1.8h7.2A1.3 1.3 0 0111.5 3.1v9.1H4.3A1.3 1.3 0 013 11V1.8z" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 4.5h4M5.5 7h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> Guide</button>
 </div></nav>
   <!-- ZONE 1 -->
   <section class="panel" id="zone-controls" aria-labelledby="z1t" data-od-id="zone-controls">
