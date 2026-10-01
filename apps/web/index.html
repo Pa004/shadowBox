@@ -212,6 +212,10 @@ a{color:var(--fg)}
 .lg{width:11px;height:11px;border-radius:3px;flex:none}
 .graph-wrap{position:relative;background:oklch(17.5% 0.013 260);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:12px;max-width:880px}
 [data-theme="light"] .graph-wrap{background:#fff}
+.graph-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start;margin-top:12px}
+.graph-layout .graph-wrap{margin-top:0;max-width:none}
+.graph-layout .drawer{margin-top:0;grid-template-columns:1fr}
+@media (max-width:1100px){.graph-layout{grid-template-columns:1fr}}
 .graph-svg{display:block;width:100%;height:auto}
 .graph-svg{display:block;width:100%;height:auto}
 .graph-controls{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
@@ -426,6 +430,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
           <span><i class="lg" style="background:var(--danger)"></i>Failing (icon + label)</span>
           <span><i class="lg" style="background:transparent;border:1px solid var(--border-strong)"></i>Simulated edge</span>
         </div>
+        <div class="graph-layout"><div class="graph-main">
         <div class="graph-wrap">
           <svg class="graph-svg" id="graphSvg" viewBox="0 0 560 300" role="img" aria-label="Simulated architecture: api, cache, database nodes">
             <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8fa3b8"/></marker></defs>
@@ -446,6 +451,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
           <span style="font-size:12px;color:var(--faint)" class="mono" id="zoomLabel">100%</span>
           <span style="font-size:12px;color:var(--faint)">Select a node for detail (keyboard: Tab + Enter).</span>
         </div>
+        </div>
         <div class="drawer" id="nodeDrawer" aria-live="polite" data-od-id="node-drawer">
           <div style="grid-column:1/-1"><h4 id="drawerTitle">Node detail — select api, cache, or database</h4>
           <div style="font-size:12px;color:var(--muted)">Simulated per-node internals for the current run. Estimates only.</div></div>
@@ -453,6 +459,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
           <div class="stat"><div class="k">Queue depth</div><div class="v" id="dQueue">—</div></div>
           <div class="stat"><div class="k">Timeouts</div><div class="v" id="dTimeouts">—</div></div>
           <div class="stat"><div class="k">Fails</div><div class="v" id="dFails">—</div></div>
+        </div>
         </div>
       </div>
     </section>
