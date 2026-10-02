@@ -78,6 +78,8 @@
 .zone-nav-inner{gap:8px}
 .zone-nav .nav-label{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--faint);margin-right:4px}
 .zone-nav [role="tab"] svg{flex:none}
+/* Shared subsection heading (was 3 identical inline styles) */
+.subhead{margin:0 0 8px;font-size:12px;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted)}
 .zone-nav a{padding:9px 16px}
 table td, table th{padding:12px 14px}
 #zone-guide .panel-body{gap:28px}
@@ -339,7 +341,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   <!-- ZONE 1 -->
   <section class="panel" id="zone-controls" aria-labelledby="z1t" data-od-id="zone-controls">
     <div class="panel-head">
-      <span class="zone-tag">Zone 1 · Model &amp; scenario</span>
+      <span class="zone-tag">Model &amp; scenario</span>
       <h2 class="panel-title" id="z1t">Simulation controls</h2>
       <p class="panel-sub">Every run is a deterministic what-if projection from seed + assumptions. Nothing here measures production.</p>
     </div>
@@ -398,7 +400,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
         <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="8.5" stroke="currentColor" stroke-width="1.7" stroke-dasharray="3 2.4"/><circle cx="11" cy="11" r="2.4" fill="currentColor"/></svg>
       </div>
       <div style="flex:1;min-width:0">
-        <div class="verdict-kicker">Zone 2 · Verdict vs baseline</div>
+        <div class="verdict-kicker">Verdict vs baseline</div>
         <h2 class="verdict-title" id="verdictTitle">No run yet — press Run</h2>
         <div class="verdict-delta" id="verdictDelta">Simulated deltas will appear here with seed and assumptions attached.</div>
         <div class="verdict-meta" id="verdictMeta">
@@ -412,13 +414,13 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     </div>
     <div class="disclaimer">
       <svg width="13" height="13" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M6 1L11 10H1L6 1Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
-      <span>What-if estimate only. Do not treat as production measurement. See assumptions in Zone 7.</span>
+      <span>What-if estimate only. Do not treat as production measurement. See assumptions in Guide.</span>
     </div>
   </section>
 
   <!-- ZONE 3 -->
   <section class="panel" id="zone-kpis" aria-labelledby="z3t" data-od-id="zone-kpis">
-    <div class="panel-head"><span class="zone-tag">Zone 3 · KPIs</span><h2 class="panel-title" id="z3t">Result indicators</h2>
+    <div class="panel-head"><span class="zone-tag">KPIs</span><h2 class="panel-title" id="z3t">Result indicators</h2>
       <span class="pill idle" id="kpiPill">● EMPTY — no data</span></div>
     <div class="panel-body">
       <div class="kpis" id="kpiRow">
@@ -437,7 +439,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   <div class="tabpanel" id="tab-topology" role="tabpanel" aria-labelledby="tabbtn-topology" tabindex="0">
     <!-- ZONE 4 -->
     <section class="panel" id="zone-graph" aria-labelledby="z4t" data-od-id="zone-graph">
-      <div class="panel-head"><span class="zone-tag">Zone 4 · Topology</span><h2 class="panel-title" id="z4t">Architecture graph</h2></div>
+      <div class="panel-head"><span class="zone-tag">Topology</span><h2 class="panel-title" id="z4t">Architecture graph</h2></div>
       <div class="panel-body">
         <div class="legend" aria-label="Legend">
           <span><i class="lg" style="background:var(--ok)"></i>Healthy (icon + label)</span>
@@ -483,10 +485,10 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   <div class="tabpanel" id="tab-metrics" role="tabpanel" aria-labelledby="tabbtn-metrics" tabindex="0" hidden>
     <!-- ZONE 5 -->
     <section class="panel" id="zone-metrics" aria-labelledby="z5t" data-od-id="zone-metrics">
-      <div class="panel-head"><span class="zone-tag">Zone 5 · Metrics</span><h2 class="panel-title" id="z5t">Latency distribution</h2></div>
+      <div class="panel-head"><span class="zone-tag">Metrics</span><h2 class="panel-title" id="z5t">Latency distribution</h2></div>
       <div class="panel-body">
         <div id="pbars" aria-label="Percentile bars"></div>
-        <h3 style="font-size:12px;letter-spacing:0.07em;text-transform:uppercase;color:var(--faint);margin:18px 0 4px">Per-component table (simulated)</h3>
+        <h3 class="subhead" style="margin-top:18px">Per-component table (simulated)</h3>
         <div style="overflow-x:auto">
         <table aria-label="Per-component simulated metrics" data-od-id="component-table">
           <thead><tr><th>Component</th><th>Util</th><th>Queue</th><th>Timeouts</th><th>Status</th></tr></thead>
@@ -500,7 +502,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   <div class="tabpanel" id="tab-compare" role="tabpanel" aria-labelledby="tabbtn-compare" tabindex="0" hidden>
   <!-- ZONE 6 -->
   <section class="panel" id="zone-compare" aria-labelledby="z6t" data-od-id="zone-compare">
-    <div class="panel-head"><span class="zone-tag">Zone 6 · Compare</span><h2 class="panel-title" id="z6t">Multi-scenario matrix</h2>
+    <div class="panel-head"><span class="zone-tag">Compare</span><h2 class="panel-title" id="z6t">Multi-scenario matrix</h2>
       <p class="panel-sub">All rows are simulated with the current seed. Breaches vs baseline are highlighted with icon + text, never color alone.</p>
       <button class="btn-ghost" id="btnRunAll" data-od-id="run-all" style="margin-left:auto">Run all 8 scenarios</button>
     </div>
@@ -525,10 +527,10 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   <div class="tabpanel" id="tab-guide" role="tabpanel" aria-labelledby="tabbtn-guide" tabindex="0" hidden>
   <!-- ZONE 7 -->
   <section class="panel" id="zone-guide" aria-labelledby="z7t" data-od-id="zone-guide">
-    <div class="panel-head"><span class="zone-tag">Zone 7 · Guide</span><h2 class="panel-title" id="z7t">Tour, catalog &amp; assumptions</h2></div>
+    <div class="panel-head"><span class="zone-tag">Guide</span><h2 class="panel-title" id="z7t">Tour, catalog &amp; assumptions</h2></div>
     <div class="panel-body" style="display:grid;gap:20px">
       <div>
-        <h3 style="margin:0 0 8px;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)">Guided tour — 5 steps</h3>
+        <h3 class="subhead">Guided tour — 5 steps</h3>
         <div class="tour-steps" id="tourSteps" role="list" aria-label="Tutorial steps"></div>
         <div class="tour-nav">
           <button class="btn-ghost" id="tourBack" data-od-id="tour-back">← Back</button>
@@ -538,12 +540,12 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
         </div>
       </div>
       <div>
-        <h3 style="margin:0 0 8px;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)">Chaos-card catalog — expected outcomes (simulated)</h3>
+        <h3 class="subhead">Chaos-card catalog — expected outcomes (simulated)</h3>
         <div class="catalog" id="catalog" data-od-id="chaos-catalog"></div>
       </div>
       <div class="cols2" style="grid-template-columns:1fr 1fr">
         <div>
-          <h3 style="margin:0 0 8px;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)">Metrics glossary</h3>
+          <h3 class="subhead">Metrics glossary</h3>
           <dl class="gloss" data-od-id="glossary">
             <div><dt>error_rate</dt><dd>Simulated share of failed requests, 0–1. Breach if &gt; 0.01 above baseline.</dd></div>
             <div><dt>p99</dt><dd>Simulated 99th-percentile latency in ms. Breach if &gt; 2× baseline.</dd></div>
