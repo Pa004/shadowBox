@@ -357,12 +357,12 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
           <select id="scenario">
             <option value="baseline">baseline — healthy system</option>
             <option value="db-down" selected>db-down — primary database unreachable</option>
-            <option value="cache-poison">cache-poison — tainted cache entries</option>
+            <option value="cache-poison">cache-poison — cache unavailable 10 s</option>
             <option value="latency-500ms">latency-500ms — +500 ms injected delay</option>
-            <option value="traffic-10x">traffic-10x — tenfold traffic spike</option>
-            <option value="zone-loss">zone-loss — availability zone lost</option>
-            <option value="slow-dependency">slow-dependency — downstream degrades</option>
-            <option value="queue-overflow">queue-overflow — worker queue saturates</option>
+            <option value="traffic-10x">traffic-10x — 100 to 1000 rps</option>
+            <option value="zone-loss">zone-loss — cache and database down 20 s</option>
+            <option value="slow-dependency">slow-dependency — cache slowed +100 ms</option>
+            <option value="queue-overflow">queue-overflow — 3000 rps for 10 s</option>
           </select>
           <div class="hint">8 chaos cards. Same seed + scenario always replays the same result.</div>
         </div>
@@ -550,7 +550,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
             <div><dt>error_rate</dt><dd>Simulated share of failed requests, 0–1. Breach if &gt; 0.01 above baseline.</dd></div>
             <div><dt>p99</dt><dd>Simulated 99th-percentile latency in ms. Breach if &gt; 2× baseline.</dd></div>
             <div><dt>throughput</dt><dd>Simulated successful req/s the model sustains.</dd></div>
-            <div><dt>cascade_depth</dt><dd>Simulated max failing hops from entry (0–3).</dd></div>
+            <div><dt>cascade_depth</dt><dd>Simulated max failing hops from entry (0–2).</dd></div>
             <div><dt>metrics hash</dt><dd>Short deterministic fingerprint of the simulated metric set + seed.</dd></div>
             <div><dt>verdict</dt><dd>PASS or REGRESSION vs baseline thresholds. Estimate, not a test result.</dd></div>
           </dl>
@@ -560,7 +560,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
           <ul style="margin:8px 0 0;padding-left:18px;color:var(--muted)">
             <li>Model: api → cache → database, fixed topology, configured capacity/latency/timeout per component.</li>
             <li>Seeded server-side RNG; same seed replays an identical metrics hash.</li>
-            <li>Confidence is always <strong>low</strong>; outputs are what-if estimates, never production measurements.</li>
+            <li>Confidence is <strong>low</strong> unless calibrated (<strong>medium</strong> max); outputs are what-if estimates, never production measurements.</li>
             <li>Thresholds: error +0.01, p99 ×2, throughput −20%, cascade ≥ 2 ⇒ REGRESSION.</li>
           </ul>
         </div>
@@ -569,7 +569,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   </section>
   </div>
 
-  <div class="footer">ShadowBox Studio · what-if simulator · seed + assumptions + low confidence on every result · keyboard: Tab / Enter / Esc</div>
+  <div class="footer">ShadowBox Studio · what-if simulator · seed + assumptions + stated confidence on every result · keyboard: Tab / Enter / Esc</div>
 </main>
 
 <div class="sr-only" aria-live="polite" id="live"></div>
@@ -679,9 +679,9 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     d.appendChild(btn); catalog.appendChild(d);
   });
   var TOUR=[
-    {t:"1 · Model", d:"Fixed topology api → cache → database. Synthetic curves, labeled estimates."},
+    {t:"1 · Model", d:"Fixed topology api → cache → database. Configured capacity, latency, timeouts."},
     {t:"2 · Scenario", d:"Pick one of 8 chaos cards. Each card documents its expected outcome."},
-    {t:"3 · Seed", d:"Numeric seed drives the PRNG. Same seed replays byte-identical results."},
+    {t:"3 · Seed", d:"Numeric seed drives the RNG. Same seed replays an identical metrics hash."},
     {t:"4 · Run", d:"Run simulates, hashes metrics, and verdicts against baseline thresholds."},
     {t:"5 · Replay", d:"Copy the hash, re-enter seed + scenario, and reproduce any result."}
   ];
