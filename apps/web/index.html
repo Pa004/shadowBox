@@ -569,7 +569,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
   </section>
   </div>
 
-  <div class="footer">ShadowBox Studio · what-if simulator · seed + assumptions + low confidence on every result · keyboard: Tab / Enter / Esc · <a href="#top">back to top ↑</a></div>
+  <div class="footer">ShadowBox Studio · what-if simulator · seed + assumptions + low confidence on every result · keyboard: Tab / Enter / Esc</div>
 </main>
 
 <div class="sr-only" aria-live="polite" id="live"></div>
@@ -963,7 +963,17 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
       if(mm) showTab(mm[1], false);
     });
     var top=$("toTop");
-    top.addEventListener("click",function(){ window.scrollTo({top:0,behavior:"smooth"}); });
+    top.addEventListener("click",function(){
+      TABS.forEach(function(k){
+        var btn = document.querySelector('[data-tab="'+k+'"]');
+        var panel = document.getElementById("tab-"+k);
+        if(btn){ btn.setAttribute("aria-selected","false"); btn.tabIndex = -1; }
+        if(panel){ panel.hidden = true; }
+      });
+      try{ history.replaceState(null, "", location.pathname); }catch(e){}
+      window.scrollTo({top:0,behavior:"smooth"});
+      $("live").textContent = "Back at summary. No detail tab selected.";
+    });
     window.addEventListener("scroll",function(){ top.classList.toggle("show", window.scrollY>600); },{passive:true});
   })();
   // init: paint cached snapshot instantly, then refresh live
