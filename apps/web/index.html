@@ -771,7 +771,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     var dErr=(r.error-b.error), dP99=r.p99-b.p99, dTps=r.tps-b.tps;
     $("verdictDelta").textContent="Δ vs baseline · error "+(dErr>=0?"+":"")+dErr.toFixed(3)+" · p99 "+(dP99>=0?"+":"")+dP99+" ms · throughput "+(dTps>=0?"+":"")+dTps+" rps · cascade "+b.cascade+"→"+r.cascade+" · "+vd.reasons.join(", ");
     $("verdictMeta").innerHTML="";
-    [["seed",r.seed],["scenario",r.scenario],["confidence",r.confidence],["type","simulation"]].forEach(function(kv){
+    [["seed",r.seed],["scenario",r.scenario],["confidence",r.confidence],["engine",r.engine_confidence],["type","simulation"]].forEach(function(kv){
       var s=document.createElement("span");s.className="meta-tag";s.innerHTML="";s.appendChild(document.createTextNode(kv[0]+" "));
       var bb=document.createElement("b");bb.className="mono";bb.textContent=kv[1];s.appendChild(bb);$("verdictMeta").appendChild(s);});
     pill.className="pill "+(vd.v==="REGRESSION"?"fail":"ok");

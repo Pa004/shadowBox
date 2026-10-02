@@ -144,6 +144,10 @@ export default function App() {
               {verdict === "REGRESSION" ? "✕ " : "✓ "}{verdict}
             </span>{" "}
             hash={report?.metrics_hash.slice(0, 12)}</p>
+          <p style={{ color: "var(--sb-muted)", fontSize: 13 }}>
+            model confidence: <strong>{report?.confidence}</strong> ({report?.calibration_source}) ·
+            engine confidence: <strong>{report?.engine_confidence}</strong>
+          </p>
           <div id="graph" ref={boxRef} style={{ width: "100%", height: 320, border: "1px solid var(--sb-border-strong)", borderRadius: "var(--sb-r)" }} />
           <label id="replay">t={t}s <input type="range" min={0} max={scenario.duration_s} value={t} onChange={(e) => setT(Number(e.target.value))} /></label>
           <pre className="sb-pre">active_faults=[{activeFaults(scenario.faults, t).join(", ") || "none"}]</pre>
