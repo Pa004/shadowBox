@@ -26,6 +26,7 @@ export interface Report {
   metrics_hash: string;
   seed: number;
   confidence: string;
+  engine_confidence: string;
   calibration_source: string;
 }
 
