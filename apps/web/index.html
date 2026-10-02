@@ -98,20 +98,24 @@ a{color:var(--fg)}
 .mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;letter-spacing:0}
 .num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
 /* ---------- top chrome ---------- */
-.topbar{
-  position:static;
-  background:oklch(18.5% 0.014 260 / 0.94);
-  border-bottom:1px solid var(--border);
-}
-[data-theme="light"] .topbar{ background:oklch(100% 0 0 / 0.96); }
-/* ---------- section nav (single sticky element) ---------- */
-.zone-nav{
+/* ---------- unified sticky app header (brand + tabs, no gap) ---------- */
+.appheader{
   position:sticky;top:0;z-index:50;
   background:oklch(18.5% 0.014 260 / 0.96);backdrop-filter:blur(10px);
   border-bottom:1px solid var(--border);
 }
-[data-theme="light"] .zone-nav{ background:oklch(100% 0 0 / 0.96); }
-.zone-nav-inner{max-width:1440px;margin:0 auto;padding:8px 24px;display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+[data-theme="light"] .appheader{ background:oklch(100% 0 0 / 0.96); }
+.topbar{
+  background:transparent;
+  border:0;
+}
+[data-theme="light"] .topbar{ background:transparent; }
+/* ---------- section nav (lives inside .appheader) ---------- */
+.zone-nav{
+  background:transparent;
+  border:0;
+}
+.zone-nav-inner{max-width:1440px;margin:0 auto;padding:2px 24px 10px;display:flex;gap:4px;flex-wrap:wrap;align-items:center}
 .zone-nav a{
   font-size:12px;font-weight:600;letter-spacing:0.04em;text-decoration:none;
   color:var(--muted);border:1px solid transparent;border-radius:999px;padding:7px 12px;min-height:36px;
@@ -123,7 +127,7 @@ a{color:var(--fg)}
 .zone-nav [role="tab"]:hover{color:var(--fg);border-color:var(--border-strong)}
 .zone-nav [role="tab"][aria-selected="true"]{color:var(--accent-ink);background:var(--accent);border-color:transparent;font-weight:700}
 .tabpanel[hidden]{display:none}
-.tabpanel{scroll-margin-top:76px}
+.tabpanel{scroll-margin-top:150px}
 #toTop{
   position:fixed;right:18px;bottom:18px;z-index:60;display:none;
   width:44px;height:44px;border-radius:50%;border:1px solid var(--border-strong);
@@ -302,7 +306,8 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
 </style>
 </head>
 <body>
-<div class="topbar" id="top">
+<header class="appheader" id="top">
+<div class="topbar">
   <div class="topbar-inner">
     <div class="brand" data-od-id="brand">
       <div class="brand-mark" aria-hidden="true">
@@ -324,12 +329,13 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     </div>
   </div>
 </div>
-
-<main class="page">
 <nav class="zone-nav" aria-label="Detail views"><div class="zone-nav-inner" id="zoneNav" role="tablist" aria-label="Detail tabs">
 <span class="nav-label" aria-hidden="true">Detail views</span>
 <button role="tab" data-tab="topology" aria-selected="true" aria-controls="tab-topology" id="tabbtn-topology"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="3" cy="7" r="2" stroke="currentColor" stroke-width="1.4"/><circle cx="11" cy="3.5" r="2" stroke="currentColor" stroke-width="1.4"/><circle cx="11" cy="10.5" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 6.2 9 4.4M5 7.8 9 9.6" stroke="currentColor" stroke-width="1.2"/></svg> Topology</button><button role="tab" data-tab="metrics" aria-selected="false" aria-controls="tab-metrics" id="tabbtn-metrics" tabindex="-1"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2.5 11.5V7M7 11.5V2.5M11.5 11.5V5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> Metrics</button><button role="tab" data-tab="compare" aria-selected="false" aria-controls="tab-compare" id="tabbtn-compare" tabindex="-1"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="1.5" y="2.5" width="11" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 5.5h11M5.5 5.5v6" stroke="currentColor" stroke-width="1.2"/></svg> Compare</button><button role="tab" data-tab="guide" aria-selected="false" aria-controls="tab-guide" id="tabbtn-guide" tabindex="-1"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 1.8h7.2A1.3 1.3 0 0111.5 3.1v9.1H4.3A1.3 1.3 0 013 11V1.8z" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 4.5h4M5.5 7h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> Guide</button>
 </div></nav>
+</header>
+
+<main class="page">
   <!-- ZONE 1 -->
   <section class="panel" id="zone-controls" aria-labelledby="z1t" data-od-id="zone-controls">
     <div class="panel-head">
