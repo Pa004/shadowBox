@@ -90,6 +90,8 @@ shadowbox calibrate model.yaml --measurements measured.yaml --out calibrated.yam
 
 `measured.yaml` maps component ids to observed `p50` plus `source`/`measured_at`. Base latencies scale proportionally; `fit_error` (max relative change) decides: **≤ 15% → `medium`**, else `low` with the error exposed. `medium` means "parameters within 15% of measured medians" — never "predictions validated". Reports always carry `engine_confidence: high` (deterministic, golden-hash regressed) apart from model fidelity.
 
+Full v2 calibration adds per-component `sat_tps` (isolated saturation throughput → capacity) and `queue_max` (→ queue size via engine search), plus a `reference` workload with observed aggregates. The final model re-simulates the reference: `medium` requires p50 ±15%, error ±2pp, throughput ±10%. Known-config parameters (topology, timeouts, workload, queue policy) are never scaled.
+
 ## Develop
 
 ```powershell
