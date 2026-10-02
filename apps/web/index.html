@@ -325,7 +325,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
       </span>
     </div>
     <div class="topbar-right">
-      <span class="conf-pill" data-od-id="confidence-pill"><span class="conf-dot" aria-hidden="true"></span>Confidence: <strong>&nbsp;low — estimate only</strong></span>
+      <span class="conf-pill" id="confPill" data-od-id="confidence-pill"><span class="conf-dot" aria-hidden="true"></span>Confidence: <strong>&nbsp;low — estimate only</strong></span>
       <button class="btn-ghost" id="btnTheme" data-od-id="theme-toggle" aria-label="Toggle dark mode">Dark mode</button>
       <button class="btn-tour" id="btnStartTour" data-od-id="start-tour">Start guided tour</button>
     </div>
@@ -640,6 +640,8 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     });
     return {scenario:scenario,seed:seed,error:m.error_rate,p99:L.p99,p50:L.p50,p90:L.p90,p95:L.p95,
       tps:Math.round(m.throughput_rps),cascade:m.cascade_depth,hash:(rep.metrics_hash||"").slice(0,12),
+      confidence:rep.confidence||"low",engine_confidence:rep.engine_confidence||"high",
+      calibration_source:rep.calibration_source||"none",
       comps:comps,nodes:nodes};
   }
   function verdictOf(r, b){
@@ -769,7 +771,7 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     var dErr=(r.error-b.error), dP99=r.p99-b.p99, dTps=r.tps-b.tps;
     $("verdictDelta").textContent="Δ vs baseline · error "+(dErr>=0?"+":"")+dErr.toFixed(3)+" · p99 "+(dP99>=0?"+":"")+dP99+" ms · throughput "+(dTps>=0?"+":"")+dTps+" rps · cascade "+b.cascade+"→"+r.cascade+" · "+vd.reasons.join(", ");
     $("verdictMeta").innerHTML="";
-    [["seed",r.seed],["scenario",r.scenario],["confidence","low"],["type","simulation"]].forEach(function(kv){
+    [["seed",r.seed],["scenario",r.scenario],["confidence",r.confidence],["type","simulation"]].forEach(function(kv){
       var s=document.createElement("span");s.className="meta-tag";s.innerHTML="";s.appendChild(document.createTextNode(kv[0]+" "));
       var bb=document.createElement("b");bb.className="mono";bb.textContent=kv[1];s.appendChild(bb);$("verdictMeta").appendChild(s);});
     pill.className="pill "+(vd.v==="REGRESSION"?"fail":"ok");
@@ -791,6 +793,12 @@ th button{background:none;border:0;color:inherit;font:inherit;letter-spacing:inh
     $("kTpsSub").textContent="Δ "+(dTps>=0?"+":"")+dTps+" rps vs baseline";
     $("kCascSub").textContent="baseline "+b.cascade+" → "+r.cascade;
     var kp=$("kpiPill"); kp.className="pill "+(vd.v==="REGRESSION"?"fail":"ok"); kp.textContent=(vd.v==="REGRESSION"?"✕ simulated regression":"✓ simulated pass")+" · seed "+r.seed;
+    var cp=$("confPill");
+    if(cp){
+      cp.setAttribute("title","Engine confidence: high (seeded RNG, golden-hash regression, property invariants). Model confidence: "+r.confidence+" ("+r.calibration_source+").");
+      var strong=cp.querySelector("strong");
+      if(strong) strong.textContent = " "+r.confidence+" — "+(r.confidence==="medium"?"calibrated estimate":"estimate only");
+    }
     // pbars
     var max=Math.max(r.p50,r.p90,r.p95,r.p99,1);
     var rows=[["p50",r.p50],["p90",r.p90],["p95",r.p95],["p99",r.p99]];

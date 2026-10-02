@@ -10,8 +10,10 @@ from shadowbox.report import build_report
 ROOT = Path(__file__).resolve().parents[2]
 EXAMPLE = ROOT / "src" / "shadowbox" / "data" / "example"
 
-# Pinned on first green M1 run; any engine change must justify a hash update here.
-GOLDEN_HASH = "ffbf351c71aa9b403191e73df8fd1bcf46f6f72e6946bf6c2044e52c2bc7a080"
+# Pinned on first green M1 run; re-pinned when SystemModel gained metadata:{}
+# (metrics identical: 5000/6000, p99 34 — only the envelope hash moved).
+# Any engine change must justify a hash update here.
+GOLDEN_HASH = "01bee0a8a68700a1197f04718412640e338988251805e6d9886dad1bc939886b"
 GOLDEN_SUCCEEDED = 5000
 GOLDEN_FAILED = 1000
 
