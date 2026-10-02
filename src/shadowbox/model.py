@@ -1,6 +1,6 @@
 """Pydantic domain model for M0 (structure only, no simulation)."""
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -34,6 +34,7 @@ class Connection(BaseModel):
 
 class SystemModel(BaseModel):
     components: list[Component] = Field(min_length=1)
+    metadata: dict[str, Any] = Field(default_factory=dict)
     connections: list[Connection] = Field(default_factory=list)
 
     @field_validator("components")

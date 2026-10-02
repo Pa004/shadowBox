@@ -60,7 +60,7 @@ flowchart LR
 
 ## Use it your way
 
-- **CLI** — `validate`, `simulate`, `compare` (exit 2 on regression — CI-ready), `report`, `import` (compose/k8s), `init`, `serve`.
+- **CLI** — `validate`, `simulate`, `compare` (exit 2 on regression — CI-ready), `report`, `import` (compose/k8s), `init`, `serve`, `calibrate`.
 - **API** — FastAPI, 7 endpoints, paginated events, SQLite locally / D1 on Cloudflare.
 - **Studio** — React + Cytoscape dashboards, compare matrix, time-travel replay, guided tutorial.
 - **CI check** — `shadowbox compare --a base.json --b pr.json --threshold p99:+10%,error_rate:+1pp` fails the build on architectural regressions.
@@ -78,7 +78,17 @@ apps/web/              # static demo with replay (no build)
 apps/studio/           # React + Cytoscape UI (Vite, strict TS)
 ```
 
-Verified: `ruff` + strict `mypy` clean, 46 pytest green (golden hash, Hypothesis invariants, API integration), CI on every push, deterministic local↔cloud.
+Verified: `ruff` + strict `mypy` clean, pytest green (golden hash, Hypothesis invariants, API integration), CI on every push, deterministic local↔cloud.
+
+## Calibration (earning `medium`)
+
+Uncalibrated reports say `confidence: low` — honest, since every latency is an estimate. With measured low-load medians:
+
+```powershell
+shadowbox calibrate model.yaml --measurements measured.yaml --out calibrated.yaml
+```
+
+`measured.yaml` maps component ids to observed `p50` plus `source`/`measured_at`. Base latencies scale proportionally; `fit_error` (max relative change) decides: **≤ 15% → `medium`**, else `low` with the error exposed. `medium` means "parameters within 15% of measured medians" — never "predictions validated". Reports always carry `engine_confidence: high` (deterministic, golden-hash regressed) apart from model fidelity.
 
 ## Develop
 

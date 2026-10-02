@@ -11,6 +11,7 @@ import yaml
 from rich.console import Console
 
 from shadowbox import engine as engine_mod
+from shadowbox.calibrate import calibrate_file
 from shadowbox.cards import list_cards, write_tree
 from shadowbox.compare import (
     DEFAULT_THRESHOLDS,
@@ -235,6 +236,30 @@ def init_project(
         raise typer.Exit(code=3) from exc
     console.print(f"[green]initialized[/green]: {len(written)} files -> {out}")
     console.print(f"cards available: {', '.join(n.replace('.yaml', '') for n in list_cards())}")
+
+
+@app.command()
+def calibrate(
+    model: Path = typer.Argument(..., help="Path to model.yaml"),
+    measurements: Path = typer.Option(..., "--measurements", help="Measured p50 medians YAML"),
+    out: Path = typer.Option(Path("calibrated.yaml"), "--out", help="Calibrated model output"),
+) -> None:
+    """Scale base latencies from measured medians (exit 0 ok, 3 invalid)."""
+    try:
+        calibrated, record = calibrate_file(model, measurements)
+    except ShadowBoxError as exc:
+        console.print(f"[red]{exc.code}[/red]: {exc}")
+        raise typer.Exit(code=3) from exc
+    out.write_text(
+        yaml.safe_dump(calibrated.model_dump(mode="json", by_alias=True), sort_keys=False),
+        encoding="utf-8",
+    )
+    for warning in record["warnings"]:
+        console.print(f"[yellow]warn[/yellow]: {warning}")
+    console.print(
+        f"[green]calibrated[/green]: fit_error={record['fit_error']} "
+        f"-> model_confidence={record['model_confidence']} -> {out}"
+    )
 
 
 if __name__ == "__main__":
