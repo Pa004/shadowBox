@@ -9,7 +9,7 @@ plus dependencies, inject failures, latency or traffic, and simulate the
 outcome without touching production — fully local, no paid services.
 
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/shadowbox.svg)](https://pypi.org/project/shadowbox/)
 [![CI](https://github.com/Pa004/shadowBox/actions/workflows/ci.yml/badge.svg)](https://github.com/Pa004/shadowBox/actions)
 [![Live Demo](https://img.shields.io/badge/demo-live-ff69b4.svg)](https://shadowbox-api.pablodo004.workers.dev/)
@@ -191,4 +191,4 @@ green suite before merging to `master`. Spec and agent notes (`ShadowBox.md`,
 
 ## License
 
-[Apache-2.0](LICENSE)
+[MIT](LICENSE)
