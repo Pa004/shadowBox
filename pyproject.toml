@@ -3,14 +3,14 @@ name = "shadowbox"
 version = "0.3.2"
 description = "Executable architectural model for safe what-if experimentation"
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = { text = "MIT" }
 requires-python = ">=3.13"
 keywords = ["simulation", "chaos-engineering", "architecture", "reliability", "sre"]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
   "Intended Audience :: Education",
-  "License :: OSI Approved :: Apache Software License",
+  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.13",
   "Topic :: Software Development :: Testing",
